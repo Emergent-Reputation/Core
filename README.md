@@ -44,6 +44,7 @@ length of the shortest path between  _U<sub>req</sub>_ and _U<sub>query</sub>_ i
 There is a third (implicitly defaulted) paramter assocaited with a terminal max-length, much like chain length in PKI.
 
 
-### Security (TODO/WIP)
-1. TODO: Availbilty: This is a key one, we ensure availability of contract by ensuring DDoSers incur a cost?
-2. TODO: Privacy: Do we want to esnure the web-of-trust will remain private? This seems impossible but need to look into ZK Proofs.
+### Questions
+1. How do we prevent the contract from being ddosed or sybil attacked?
+2. Privacy: How, if even possible, do we want to esnure the web-of-trust will remain private? This seems impossible but need to look into ZK Proofs.
+3. Is a contract the best place to pin the CIDs?
