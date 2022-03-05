@@ -3,7 +3,7 @@
 ## Problem Statement
 The lack of reputation clearly associated with entites creating content on social media platforms like Twitter
 creates a lacking experience for users. Add to that foreign interference through coordinated efforts to produce 
-porpoganada as described 
+propoganda as described 
 [here](https://symantec-enterprise-blogs.security.com/blogs/threat-intelligence/twitterbots-propaganda-disinformation),
 and it clearly makes for an unusable experience for social communication and coordination.
 
