@@ -21,6 +21,7 @@ signature list along with their associated public key/verfication key. To incent
 they signing will incurr a cost onto _U<sub>adj</sub>_ with a possibilty of accruing rewards for the action (TODO?).
 ![](/assets/diag1.jpg)
 
+To make the resulting hash (CID) from the payload that contains the web-of-trust associated with the identity, easily accesible, we pin it to the smart-contract that will underpin this trust system.
 ```solidity
 
 contract Repuation {
