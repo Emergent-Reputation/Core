@@ -2,7 +2,7 @@
 
 ## Problem Statement
 The lack of reputation clearly associated with entities creating content on social media platforms like Twitter
-creates an experience for users that requires them to use judgement to decide if an interaction is pure or malicious. Add to that foreign interference through coordinated efforts to produce 
+creates an experience for users that requires them to excercise judgement to decide if an interaction is pure or malicious. Add to that foreign interference through coordinated efforts to produce
 propoganda as described 
 [here](https://symantec-enterprise-blogs.security.com/blogs/threat-intelligence/twitterbots-propaganda-disinformation),
 and it clearly makes for an unusable experience for social communication and coordination. All of these problems result from a lack of a reliable reputation system.
