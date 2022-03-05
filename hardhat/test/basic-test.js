@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Reputation Test", function () {
-  it("Should return the new greeting once it's changed", async function () {
+  it("Should return the string mapped to requesting account.", async function () {
     const Reputation = await ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
     await reputation.deployed();
@@ -11,3 +11,5 @@ describe("Reputation Test", function () {
     expect(await reputation.getCID()).to.equal("test");
   });
 });
+
+// TODO: Add test for multiple accounts in map.
