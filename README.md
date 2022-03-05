@@ -1,7 +1,7 @@
 # Emergent Reputation System
 
 ## Problem Statement
-The lack of reputation clearly associated with entites creating content on social media platforms like Twitter
+The lack of reputation clearly associated with entities creating content on social media platforms like Twitter
 creates a lacking experience for users. Add to that foreign interference through coordinated efforts to produce 
 propoganda as described 
 [here](https://symantec-enterprise-blogs.security.com/blogs/threat-intelligence/twitterbots-propaganda-disinformation),
