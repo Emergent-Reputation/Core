@@ -48,3 +48,8 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 1. How do we prevent the contract from being ddosed or sybil attacked?
 2. Privacy: How, if even possible, do we want to esnure the web-of-trust will remain private? This seems impossible but need to look into ZK Proofs.
 3. Is a contract the best place to pin the CIDs?
+
+## Possible things that can be built
+1. Web3 Twitter
+2. Web3 Facebook
+3. Web3 Dating App
