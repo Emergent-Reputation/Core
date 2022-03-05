@@ -13,6 +13,8 @@ We leverage this charecteristic as a basis to build an emergent reputation syste
 [key signing parties](https://en.wikipedia.org/wiki/Key_signing_party), in an automated and out-of-the-way fashion for lay users.
 
 ## Design Specification
+
+### Identity payload
 The input payload will consist of the verfication address associated with the User we will describe as _U<sub>orginal</sub>_.
 
 After interacting with _U<sub>original</sub>_ , an arbtirary user _U<sub>adj</sub>_ can sign the 
@@ -22,6 +24,7 @@ they signing will incurr a cost onto _U<sub>adj</sub>_ with a possibilty of accr
 ![](/assets/diag1.jpg)
 
 To make the resulting hash (CID) from the payload that contains the [web-of-trust](https://en.wikipedia.org/wiki/Web_of_trust) associated with the identity, easily accesible, we pin it to the smart-contract that will underpin this trust system.
+### On Chain Pinning of Data
 ```solidity
 
 contract Repuation {
@@ -32,4 +35,15 @@ contract Repuation {
     }
 }
 ```
+### Reputation Metrics
+The reputation of an actor in this space is relational to others interacting with the actor.
+Therefore the reputation-function will take two paramters, the requesting account number _U<sub>req</sub>_ and the
+account number for which the reputation is being queried for _U<sub>query</sub>_. The result of this query will be the 
+length of the shortest path between  _U<sub>req</sub>_ and _U<sub>query</sub>_ in the graph created via the signatures.
 
+There is a third (implicitly defaulted) paramter assocaited with a terminal max-length, much like chain length in PKI.
+
+
+### Security (TODO/WIP)
+1. TODO: Availbilty: This is a key one, we ensure availability of contract by ensuring DDoSers incur a cost?
+2. TODO: Privacy: Do we want to esnure the web-of-trust will remain private? This seems impossible but need to look into ZK Proofs.
