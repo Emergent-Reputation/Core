@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Reputation Test", function () {
+describe("Basic Deployment & Functionality", function () {
   it("Should return the string mapped to requesting account.", async function () {
     const Reputation = await ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
