@@ -1,5 +1,13 @@
 # Emergent Reputation System
 
+## New Prespective
+1. Get rid of signature lists for out-signatures
+2. Get rid of all signatures at the CID payload layer.
+
+- both of these we keep a list of the verfication keys (public account numbers) of individuals onchiani
+- by signing the tx of keeping this list associated with the user account-number, we reduce the complexity of web of trust
+    - by leveraging the offering of the underlying chain.
+
 ## Problem Statement
 The lack of reputation clearly associated with entities creating content on social media platforms like Twitter
 creates an experience for users that requires them to excercise judgement to decide if an interaction is pure or malicious. Add to that foreign interference through coordinated efforts to produce
