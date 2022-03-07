@@ -23,6 +23,8 @@ signature list along with their associated public key/verfication key. To incent
 they signing will incurr a cost onto _U<sub>adj</sub>_ with a possibilty of accruing rewards for the action (TODO?).
 ![](/assets/diag1.jpg)
 
+TODO(@ckartik): Keep both in-node and out-node per user signatures.
+
 To make the resulting hash (CID) from the payload that contains the [web-of-trust](https://en.wikipedia.org/wiki/Web_of_trust) associated with the identity, easily accesible, we pin it to the smart-contract that will underpin this trust system.
 ### On Chain Pinning of Data
 ```solidity
@@ -48,6 +50,8 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 1. How do we prevent the contract from being ddosed or sybil attacked?
 2. Privacy: How, if even possible, do we want to esnure the web-of-trust will remain private? This seems impossible but need to look into ZK Proofs.
 3. Is a contract the best place to pin the CIDs?
+4. Who would append signatures to the chain associated with an identity?
+    - This would impact ability for signers to revoke the signatures.
 
 ## Possible things that can be built
 1. Web3 Twitter
