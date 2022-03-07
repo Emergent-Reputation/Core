@@ -8,6 +8,9 @@
 - by signing the tx of keeping this list associated with the user account-number, we reduce the complexity of web of trust
     - by leveraging the offering of the underlying chain.
 
+
+Trade off between 1 & 2 is graph traversal speed for shortest path.
+
 ## Problem Statement
 The lack of reputation clearly associated with entities creating content on social media platforms like Twitter
 creates an experience for users that requires them to excercise judgement to decide if an interaction is pure or malicious. Add to that foreign interference through coordinated efforts to produce
