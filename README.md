@@ -3,6 +3,8 @@
 ## New Prespective
 1. Get rid of signature lists for out-signatures
 2. Get rid of all signatures at the CID payload layer.
+3. ZK transfer of repuation to other identites through signing.
+4. Cut edges on graph can also represent reputation.
 
 - both of these we keep a list of the verfication keys (public account numbers) of individuals onchiani
 - by signing the tx of keeping this list associated with the user account-number, we reduce the complexity of web of trust
@@ -68,3 +70,9 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 1. Web3 Twitter
 2. Web3 Facebook
 3. Web3 Dating App
+
+### Cryptonomics
+- People can build their trust lists.
+- Exposing to others can compensate them? In some form of staking - however, their stake can be lost.
+- Drive monetary incentives to build a valuable web-of-trust.
+- That turst infomration has inherent worth.
