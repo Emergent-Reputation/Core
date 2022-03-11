@@ -67,7 +67,8 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 3. Is a contract the best place to pin the CIDs?
 4. Who would append signatures to the chain associated with an identity?
     - This would impact ability for signers to revoke the signatures.
-
+5. Could we allow for revocation of signatures?
+    - For in-nodes it's possible to keep a revocation list as well.
 ## Possible things that can be built
 1. Web3 Twitter
 2. Web3 Facebook
