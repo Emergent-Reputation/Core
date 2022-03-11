@@ -17,12 +17,16 @@ its located and load its bytes. For example, JSON (0x0200).
 - Solves the problem of encoding JSON data into a file, when the JSON representation 
   itself can be worked on natively.
 
+![ipld-infographic](./what-is-ipld.png)
 ### IPLD Data Model
 - Data Modle details forms the data takes in memory, from which the 
   codec transforms memory to encoded bytes.
 - Includes: Booleans, Strings, Ints, Floats, Null, Arrays, Maps - Bytes & Links (CIDs)
 - IPLD Block is like json but includes bytes and Links (not included in JSON)
-
+- DAG-JSON
+- DAG-CBOR - is the recommended system.
+    - This can be decoded back to javascript data object. 
+- We could use CID links to link back to a
 ## Merkle DAGs
     - A DAG with authenticated links down-stream through inclusion of recursive hashes.
     - Can have data throughout the data-structure.
