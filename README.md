@@ -52,6 +52,31 @@ contract Repuation {
     }
 }
 ```
+
+### IPLD Data Model
+We will encode nodes in CBOR and store on IPLD. The data model will be the following:
+
+```javascript
+// Node with identity 0x004
+{
+    "trusted_accounts": ["0x001", "0x002", "0x003"...],
+    "signature_with_private_key_of_trusted": ["2f23eeef"],
+    "accounts_trusting_me": {
+            "0x005": "bafy000000", // IPLD CID link to node.
+            "0x006": "bafy000001",
+            "0x007": "bafy000001"
+    }
+}
+
+
+// Node with identity 0x007
+{
+    "trusted_accounts": ["0x004"],
+    "signature_with_private_key_of_trusted": ["2f23efff"],
+    "accounts_trusting_me": {}
+}
+```
+
 ### Reputation Metrics
 The reputation of an actor in this space is relational to others interacting with the actor.
 Therefore the reputation-function will take two paramters, the requesting account number _U<sub>req</sub>_ and the
@@ -67,7 +92,8 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 3. Is a contract the best place to pin the CIDs?
 4. Who would append signatures to the chain associated with an identity?
     - This would impact ability for signers to revoke the signatures.
-
+5. Could we allow for revocation of signatures?
+    - For in-nodes it's possible to keep a revocation list as well.
 ## Possible things that can be built
 1. Web3 Twitter
 2. Web3 Facebook
