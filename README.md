@@ -5,7 +5,7 @@
 2. Get rid of all signatures at the CID payload layer.
 3. ZK transfer of repuation to other identites through signing.
 4. Cut edges on graph can also represent reputation.
-
+5. We will be using IPLD instead of IPFS
 - both of these we keep a list of the verfication keys (public account numbers) of individuals onchiani
 - by signing the tx of keeping this list associated with the user account-number, we reduce the complexity of web of trust
     - by leveraging the offering of the underlying chain.
