@@ -21,6 +21,7 @@ its located and load its bytes. For example, JSON (0x0200).
 - Data Modle details forms the data takes in memory, from which the 
   codec transforms memory to encoded bytes.
 - Includes: Booleans, Strings, Ints, Floats, Null, Arrays, Maps - Bytes & Links (CIDs)
+- IPLD Block is like json but includes bytes and Links (not included in JSON)
 
 ## Merkle DAGs
     - A DAG with authenticated links down-stream through inclusion of recursive hashes.
