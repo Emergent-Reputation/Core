@@ -10,6 +10,8 @@
 - by signing the tx of keeping this list associated with the user account-number, we reduce the complexity of web of trust
     - by leveraging the offering of the underlying chain.
 
+Key Idea:
+- A distributed graph built on IPLD that is pinned to smart contract on-chain.
 
 Trade off between 1 & 2 is graph traversal speed for shortest path.
 
