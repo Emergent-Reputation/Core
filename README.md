@@ -77,6 +77,8 @@ We will encode nodes in CBOR and store on IPLD. The data model will be the follo
 }
 ```
 
+[]
+
 ### Reputation Metrics
 The reputation of an actor in this space is relational to others interacting with the actor.
 Therefore the reputation-function will take two paramters, the requesting account number _U<sub>req</sub>_ and the
@@ -104,3 +106,8 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 - Exposing to others can compensate them? In some form of staking - however, their stake can be lost.
 - Drive monetary incentives to build a valuable web-of-trust.
 - That turst infomration has inherent worth.
+
+
+## Known Issues
+- Sometime when attempting to compile hardhat scripts, there can be issues with node versions.
+- Using the command: `$ nvm use 16` should resole issues

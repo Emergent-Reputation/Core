@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@alch/alchemy-web3": "^1.2.5",
+    "compile": "^0.0.2",
     "dotenv": "^16.0.0",
     "ipfs-http-client": "^56.0.1",
+    "ipld": "^0.30.2",
     "web3": "^1.7.1"
   }
 }
