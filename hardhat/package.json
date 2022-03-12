@@ -13,7 +13,9 @@
     "compile": "^0.0.2",
     "dotenv": "^16.0.0",
     "ipfs-http-client": "^56.0.1",
+    "ipfs-repo": "^14.0.1",
     "ipld": "^0.30.2",
+    "multiformats": "^9.6.4",
     "web3": "^1.7.1"
   }
 }

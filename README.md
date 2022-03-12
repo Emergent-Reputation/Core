@@ -1,5 +1,7 @@
 # Emergent Reputation System
 
+#
+
 ## New Prespective
 1. Get rid of signature lists for out-signatures
 2. Get rid of all signatures at the CID payload layer.
@@ -96,6 +98,9 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
     - This would impact ability for signers to revoke the signatures.
 5. Could we allow for revocation of signatures?
     - For in-nodes it's possible to keep a revocation list as well.
+6. How do we leverage IPLD to create a distributed graph with cycles.
+    - We keep the nodes on IPLD and edges stored on-chain.
+    - Recommended to look into IPNS for this? TODO
 ## Possible things that can be built
 1. Web3 Twitter
 2. Web3 Facebook
