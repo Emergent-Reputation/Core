@@ -17,6 +17,5 @@
     "dotenv": "^16.0.0",
     "multiformats": "^9.6.4",
     "web3": "^1.7.1"
-  },
-  "type": "module"
+  }
 }
