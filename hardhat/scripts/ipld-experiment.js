@@ -65,4 +65,37 @@ async function readBlocks (payloadCID) {
   console.log(dagCBOR.decode(recovered_payload.bytes))
 }
 
-createBlocks().then(readBlocks((pcid) => CID.parse(pcid)))
+// createBlocks().then(readBlocks((pcid) => CID.parse(pcid)))
+
+async function code(){
+
+
+const utf8Encoder = new TextEncoder()
+const utf8Decoder = new TextDecoder()
+
+const payload = await Block.encode({
+  value: {
+    name: "Kartik Chopra"
+  },
+  hasher: sha256,
+  codec: dagCBOR
+})
+
+console.log(payload.cid)
+
+const { writer, out } = await CarWriter.create([payload.cid])
+Readable.from(out).pipe(fs.createWriteStream('ipld-local.car'))
+
+writer.put(payload)
+
+await writer.close()
+
+
+const inStream = fs.createReadStream('ipld-local.car')
+const reader = await CarReader.fromIterable(inStream)
+
+const recovered_payload = await reader.get(payload.cid)
+
+console.log(dagCBOR.decode(recovered_payload.bytes))
+}
+code()
