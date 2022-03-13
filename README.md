@@ -1,15 +1,19 @@
 # Emergent Reputation System
 
+#
+
 ## New Prespective
 1. Get rid of signature lists for out-signatures
 2. Get rid of all signatures at the CID payload layer.
 3. ZK transfer of repuation to other identites through signing.
 4. Cut edges on graph can also represent reputation.
-
+5. We will be using IPLD instead of IPFS
 - both of these we keep a list of the verfication keys (public account numbers) of individuals onchiani
 - by signing the tx of keeping this list associated with the user account-number, we reduce the complexity of web of trust
     - by leveraging the offering of the underlying chain.
 
+Key Idea:
+- A distributed graph built on IPLD that is pinned to smart contract on-chain.
 
 Trade off between 1 & 2 is graph traversal speed for shortest path.
 
@@ -50,6 +54,33 @@ contract Repuation {
     }
 }
 ```
+
+### IPLD Data Model
+We will encode nodes in CBOR and store on IPLD. The data model will be the following:
+
+```javascript
+// Node with identity 0x004
+{
+    "trusted_accounts": ["0x001", "0x002", "0x003"...],
+    "signature_with_private_key_of_trusted": ["2f23eeef"],
+    "accounts_trusting_me": {
+            "0x005": "bafy000000", // IPLD CID link to node.
+            "0x006": "bafy000001",
+            "0x007": "bafy000001"
+    }
+}
+
+
+// Node with identity 0x007
+{
+    "trusted_accounts": ["0x004"],
+    "signature_with_private_key_of_trusted": ["2f23efff"],
+    "accounts_trusting_me": {}
+}
+```
+
+[]
+
 ### Reputation Metrics
 The reputation of an actor in this space is relational to others interacting with the actor.
 Therefore the reputation-function will take two paramters, the requesting account number _U<sub>req</sub>_ and the
@@ -65,7 +96,11 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 3. Is a contract the best place to pin the CIDs?
 4. Who would append signatures to the chain associated with an identity?
     - This would impact ability for signers to revoke the signatures.
-
+5. Could we allow for revocation of signatures?
+    - For in-nodes it's possible to keep a revocation list as well.
+6. How do we leverage IPLD to create a distributed graph with cycles.
+    - We keep the nodes on IPLD and edges stored on-chain.
+    - Recommended to look into IPNS for this? TODO
 ## Possible things that can be built
 1. Web3 Twitter
 2. Web3 Facebook
@@ -76,3 +111,8 @@ There is a third (implicitly defaulted) paramter assocaited with a terminal max-
 - Exposing to others can compensate them? In some form of staking - however, their stake can be lost.
 - Drive monetary incentives to build a valuable web-of-trust.
 - That turst infomration has inherent worth.
+
+
+## Known Issues
+- Sometime when attempting to compile hardhat scripts, there can be issues with node versions.
+- Using the command: `$ nvm use 16` should resole issues
