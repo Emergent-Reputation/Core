@@ -3,6 +3,9 @@ const public_key = process.env.PUBLIC_KEY;
 const secret_key = process.env.PRIVATE_KEY;
 
 
+const express = require('express')
+const app = express()
+
 const { create }= require('ipfs-http-client');
 
 const Web3 = require("web3")
@@ -99,6 +102,7 @@ async function retrieve_signatures(cid) {
     data += chunk.toString();
   }
   console.log(data);
+<<<<<<< HEAD
   data = JSON.parse(data);
   return data
 }
@@ -144,3 +148,17 @@ function find_connection(pk, distance) {
 
 
 
+=======
+  return data
+}
+retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2");
+//console.log(update_cid("hi"));
+//content();
+app.get('/', (req, res) => {
+	retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2").then((data) =>
+	res.send(data.toString())
+	)
+})
+
+app.listen(3000)
+>>>>>>> 974b266e182339c10f588b8fa9712447cfc4505e
