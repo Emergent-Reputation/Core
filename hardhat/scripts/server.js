@@ -132,6 +132,27 @@ async function bfs(source, distance) {
 	return Object.keys(visited)
   }
 
+  app.get('/accounts/store-front', async (req, res) => {
+	const reviews = {}
+	const accounts = await eth_accounts
+	reviews[accounts[1].address] = "What a great game!"
+	reviews[accounts[2].address] = "It's an ok game!"
+	reviews[accounts[3].address] = "The game could have been better!"
+	reviews[accounts[4].address] = "The game could have been better, so I don't like it!"
+
+
+	const refID = req.body.ref_id
+	const distance = req.body.depth
+	const vx = await bfs(accounts[refID].address, distance)
+	const reviewAddrs = Object.keys(reviews)
+	let resp = reviewAddrs.filter((v) => vx.indexOf(v) != -1)
+	let f = resp.map(
+		(v) => Object({source: v, review:reviews[v]})
+	)
+	res.send(f)
+})
+
+
 
 app.get('/accounts', (req, res) => {
 	eth_accounts.then((accounts) => res.send(accounts.slice(10).map((v,idx) => Object({ref_id: idx, address: v.address}))))
@@ -139,7 +160,6 @@ app.get('/accounts', (req, res) => {
 
 app.get('/bfs', async (req, res) => {
 	const accounts = await eth_accounts
-	const contract = await reputation
 	const refID = req.body.ref_id
 	const distance = req.body.depth
 	const vx = await bfs(accounts[refID].address, distance)
@@ -199,6 +219,7 @@ app.get('/accounts', (req, res) => {
 		(accounts) => res.send(accounts[0].address)
 	)
 })
+
 
 app.listen(3000)
 console.log("Server Started at Localhost:3000")
