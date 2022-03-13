@@ -1,8 +1,7 @@
 require('dotenv').config()
-//const public_key = process.env.PUBLIC_KEY;
-//const secret_key = process.env.PRIVATE_KEY;
-const public_key = "0x68f2B982D171d5803E85eA94296F944CA1812794";
-const secret_key ="142f3c11f23588b408b7565e453d6dc93dbea36647c09daefa25ac45d5794b72";
+const public_key = process.env.PUBLIC_KEY;
+const secret_key = process.env.PRIVATE_KEY;
+
 
 
 const { create }= require('ipfs-http-client');
