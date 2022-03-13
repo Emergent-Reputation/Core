@@ -1,6 +1,11 @@
 # Emergent Reputation System
 
-#
+# Build instructions
+1. `$ npx hardhat clean`
+2. `$ npx hardhat compile`
+3. `$ npx hardhat test`
+4. `$ npx hardhat run scripts/deploy`
+5. `$ npx hardhat run scripts/server` # TODO
 
 ## New Prespective
 1. Get rid of signature lists for out-signatures
