@@ -1,35 +1,32 @@
-require('dotenv').config()
-const public_key = process.env.PUBLIC_KEY;
-const secret_key = process.env.PRIVATE_KEY;
+const { ethers } = require("hardhat");
+const { create } = require('ipfs-http-client');
+const Web3 = require("web3")
+const web3 = new Web3()
+public_key = '012345678901234567890123456789012'
+secret_key = '12345678901234567890123456789012'
 
-async function local_deploy() {
-	const Reputation = await ethers.getContractFactory("Reputation");
-    const reputation = await Reputation.deploy();
-    await reputation.deployed();
+function local_deploy() {
+	const reputation =  ethers.getContractFactory("Reputation").then((Rep) =>  Rep.deploy())
+	// console.log("CONTRACT FACTORYY: %s", Reputation)
+    // const reputation = await Reputation.deploy();
+	console.log("CONTRACT DEPLOYED: %s", reputation)
 
-	return reputation
+    // await reputation.deployed();
+
+	const accounts = ethers.getSigners();
+	console.log("I GET HREE")
+
+	return {"rep": reputation, "acc": accounts}
 }
+
 
 const express = require('express')
 const app = express()
-
-const { create } = require('ipfs-http-client');
-
-const Web3 = require("web3")
-const web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/a65b92cc823246529d3bfe3701e8b916"))
-web3.eth.accounts.wallet.add(secret_key);
-
-const contract = require("../artifacts/contracts/Reputation.sol/Reputation.json");
-
-const contractAddress = "0xEf25013F949d29d6d4Cdc623B6f7c9e638AF74E0";
-const reputation_contract = new web3.eth.Contract(contract.abi, contractAddress);
 
 
 function signAddress(public_key_to_sign) {
 	return web3.eth.accounts.sign(public_key_to_sign, secret_key);
 }
-
-//console.log("sign", signAddress(public_key))
 
 
 /*{
@@ -90,7 +87,7 @@ async function get_cid(signatures) {
   const { cid } = await ipfs.add(signatures);
   console.log(cid);
 }
-get_cid(update_out_signatures('', public_key));
+// get_cid(update_out_signatures('', public_key));
 
 //Update the cid of an address.
 async function update_cid(cid) {
@@ -155,9 +152,44 @@ function find_connection(pk, distance) {
 retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2");
 //console.log(update_cid("hi"));
 //content();
+
+// GET ACCOUNTS
+
+// 
+
+let obj = local_deploy()
+console.log("OBJJJECTTT %s", obj)
+reputation = obj.rep
+accounts = obj.acc
+console.log("HERE LOOK AT MEEEEE: %s", reputation)
 app.get('/', (req, res) => {
 	retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2").then((data) =>
 	res.send(data.toString())
+	)
+})
+
+app.get('/contract', (req, res) => {
+	reputation.then((contract) => 	{
+		accounts.then(
+			(accounts) =>  contract.getCIDFor(accounts[0].address).then((resp) => res.send(resp))
+		)
+	}
+	)
+})
+
+app.get('/contract-add-cid/:cid', (req, res) => {
+	const cid = req.params.cid
+	reputation.then((contract) => 	{
+		accounts.then(
+			(accounts) =>  contract.connect(accounts[0]).updateTrustRelations(cid.toString()).then(contract.getCID().then((resp)=> res.send(resp)))
+		)
+	}
+	)
+})
+
+app.get('/accounts', (req, res) => {
+	accounts.then(
+		(accounts) => res.send(accounts[0].address)
 	)
 })
 

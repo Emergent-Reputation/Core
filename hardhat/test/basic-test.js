@@ -6,7 +6,7 @@ describe("Basic Deployment & Functionality", function () {
     const Reputation = await ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
     await reputation.deployed();
-
+    
     await reputation.updateTrustRelations("test");
     expect(await reputation.getCID()).to.equal("test");
   });
