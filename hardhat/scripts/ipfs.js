@@ -1,9 +1,17 @@
 require('dotenv').config()
 const public_key = process.env.PUBLIC_KEY;
+console.log(public_key)
 const secret_key = process.env.PRIVATE_KEY;
 
+async function deployContract() {
+	const Reputation = await ethers.getContractFactory("Reputation");
+    const reputation = await Reputation.deploy();
+    await reputation.deployed();
+	return reputation
+}
 
-
+deployContract().then((reputation) => reputation.updateTrustRelations("hi"))
+await console.log("hi")
 const { create }= require('ipfs-http-client');
 
 const Web3 = require("web3")
@@ -20,7 +28,7 @@ function signAddress(public_key_to_sign) {
 	return web3.eth.accounts.sign(public_key_to_sign, secret_key);
 }
 
-//console.log("sign", signAddress(public_key))
+console.log("sign", signAddress(public_key))
 
 /*{
         "identity": "0x0000",
@@ -93,7 +101,7 @@ get_cid(update_out_signatures('', public_key));
 })*/
 
 async function update_cid(cid) {
-  reputation_contract.methods.updateTrustRelations(cid).send({from:public_key, gas:5000000});
+  return await reputation_contract.methods.getCID();
 }
 
 async function retrieve_signatures(cid) {
@@ -104,8 +112,9 @@ async function retrieve_signatures(cid) {
   // chunks of data are returned as a Buffer, convert it back to a string
     data += chunk.toString();
   }
-  console.log(data);
+//   console.log(data);
 }
 retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2");
-//console.log(update_cid("hi"));
+newResp =  update_cid("hi")
+// console.log("NewResp %s", newResp);
 //content();
