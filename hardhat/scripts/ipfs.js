@@ -2,11 +2,18 @@ require('dotenv').config()
 const public_key = process.env.PUBLIC_KEY;
 const secret_key = process.env.PRIVATE_KEY;
 
+async function local_deploy() {
+	const Reputation = await ethers.getContractFactory("Reputation");
+    const reputation = await Reputation.deploy();
+    await reputation.deployed();
+
+	return reputation
+}
 
 const express = require('express')
 const app = express()
 
-const { create }= require('ipfs-http-client');
+const { create } = require('ipfs-http-client');
 
 const Web3 = require("web3")
 const web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/a65b92cc823246529d3bfe3701e8b916"))
@@ -102,7 +109,6 @@ async function retrieve_signatures(cid) {
     data += chunk.toString();
   }
   console.log(data);
-<<<<<<< HEAD
   data = JSON.parse(data);
   return data
 }
@@ -146,11 +152,6 @@ function find_connection(pk, distance) {
   return false;
 }
 
-
-
-=======
-  return data
-}
 retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2");
 //console.log(update_cid("hi"));
 //content();
@@ -161,4 +162,3 @@ app.get('/', (req, res) => {
 })
 
 app.listen(3000)
->>>>>>> 974b266e182339c10f588b8fa9712447cfc4505e
