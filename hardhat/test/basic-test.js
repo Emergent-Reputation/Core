@@ -18,8 +18,8 @@ describe("Basic Deployment & Functionality", function () {
     await reputation.deployed();
     await reputation.updateTrustRelations("trust_1");
     await reputation.connect(addr1).updateTrustRelations("QmTtB3qim1toPimVCzdb1DahLZaEmRw7MTaEkVj2tDyjza")
-    expect(await reputation.getCID()).to.equal("trust_1");
-    expect(await reputation.connect(addr1).getCID()).to.equal("QmTtB3qim1toPimVCzdb1DahLZaEmRw7MTaEkVj2tDyjza");
+    expect(await reputation.getCIDFor(owner.address)).to.equal("trust_1");
+    expect(await reputation.connect(addr1).getCIDFor(addr1.address)).to.equal("QmTtB3qim1toPimVCzdb1DahLZaEmRw7MTaEkVj2tDyjza");
   })
 });
 

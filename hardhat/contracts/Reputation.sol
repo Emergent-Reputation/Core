@@ -6,6 +6,11 @@ pragma solidity ^0.8.0;
 contract Reputation {
     mapping (address=>string) Trusted;
 
+    // Overloaded for backward comptitatibilty
+    function getCIDFor(address query) public view returns (string memory) {
+        return Trusted[query];
+    }
+
     function getCID() public view returns (string memory) {
         return Trusted[msg.sender];
     }
