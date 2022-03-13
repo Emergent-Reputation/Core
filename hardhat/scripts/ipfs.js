@@ -1,6 +1,8 @@
 require('dotenv').config()
-const public_key = process.env.PUBLIC_KEY;
-const secret_key = process.env.PRIVATE_KEY;
+//const public_key = process.env.PUBLIC_KEY;
+//const secret_key = process.env.PRIVATE_KEY;
+const public_key = "0x68f2B982D171d5803E85eA94296F944CA1812794";
+const secret_key ="142f3c11f23588b408b7565e453d6dc93dbea36647c09daefa25ac45d5794b72";
 
 
 const { create }= require('ipfs-http-client');
@@ -95,5 +97,16 @@ async function update_cid(cid) {
   reputation_contract.methods.updateTrustRelations(cid).send({from:public_key, gas:5000000});
 }
 
+async function retrieve_signatures(cid) {
+  const stream = ipfs.cat(cid);
+  let data = '';
 
-console.log(update_cid("hi"));
+  for await (const chunk of stream) {
+  // chunks of data are returned as a Buffer, convert it back to a string
+    data += chunk.toString();
+  }
+  console.log(data);
+}
+retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2");
+//console.log(update_cid("hi"));
+//content();
