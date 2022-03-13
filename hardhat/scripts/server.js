@@ -74,8 +74,7 @@ async function update_trusted_list(account, newTrustedAccount) {
 	}
 	payload.out_edges.push(newTrustedAccount.address)
 	newCID = await upload_data(payload)
-
-	await contract.connect(account).updateTrustRelations(newCID)
+	await contract.connect(account).updateTrustRelations(newCID.toString())
 
 	return newCID
 }
@@ -90,9 +89,61 @@ let obj = local_deploy()
 let reputation = obj.rep
 let eth_accounts = obj.acc
 
-// 
+async function get_out_public_keys(source){
+	console.log("GETTING out keys for %s", source)
+	if (source === undefined) {
+		return {out_edges: []}
+	}
+	const accounts = await eth_accounts
+	const targetAcc = accounts.find((acc) => acc.address == source)
+	const contract = await reputation
+	const cid = await contract.connect(targetAcc).getCID()
+	out_accounts = await read_data(cid)
+
+	return out_accounts
+}
+
+async function bfs(source, distance) {
+	const queue = [[source,0]];
+	const result = [];
+	const visited = {};
+	visited[source] = true;
+	let currentVertex;
+	let level;
+	while (queue.length) {
+	  next = queue.shift();
+	  currentVertex = next[0];
+	  level = next[1];
+	  result.push(currentVertex);
+	  var adj = await get_out_public_keys(currentVertex);
+	  console.log("IMHERE %s & %s", adj.out_edges.toString(), adj.out_edges.length)
+	
+	  for(var i = 0; i < adj.out_edges.length; i++) {
+		console.log("IMHERE 2 %s", visited)
+		if (!visited[adj[i]]) {
+			if (level + 1 > distance) {
+				return Object.keys(visited);
+			}
+		  visited[adj[i]] = true;
+		  queue.push([adj[i], level+1]);
+		}
+	  };
+	}
+	return Object.keys(visited)
+  }
+
+
 app.get('/accounts', (req, res) => {
 	eth_accounts.then((accounts) => res.send(accounts.slice(10).map((v,idx) => Object({ref_id: idx, address: v.address}))))
+})
+
+app.get('/bfs', async (req, res) => {
+	const accounts = await eth_accounts
+	const contract = await reputation
+	const refID = req.body.ref_id
+	const distance = req.body.depth
+	const vx = await bfs(accounts[refID].address, distance)
+	res.send(vx)
 })
 
 app.get('/accounts/trust-relations', async (req, res) => {
@@ -149,3 +200,4 @@ app.get('/accounts', (req, res) => {
 })
 
 app.listen(3000)
+console.log("Server Started at Localhost:3000")

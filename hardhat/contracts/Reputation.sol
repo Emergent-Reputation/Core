@@ -19,6 +19,7 @@ contract Reputation {
 
     function updateTrustRelations(string memory CID) public {
         console.log("SMART CONTRACT: SENDER %s ", msg.sender);
+        console.log("SMART CONTRACT: SENDER CID %s ", CID);
         Trusted[msg.sender] = CID;
     }
 }
