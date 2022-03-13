@@ -2,7 +2,8 @@ require('dotenv').config()
 const public_key = process.env.PUBLIC_KEY;
 const secret_key = process.env.PRIVATE_KEY;
 
-
+const express = require('express')
+const app = express()
 
 const { create }= require('ipfs-http-client');
 
@@ -105,7 +106,15 @@ async function retrieve_signatures(cid) {
     data += chunk.toString();
   }
   console.log(data);
+  return data
 }
 retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2");
 //console.log(update_cid("hi"));
 //content();
+app.get('/', (req, res) => {
+	retrieve_signatures("QmaMuUwaS6bqEkgEJeHSvYd4258654qwTixXwQTsi3QPH2").then((data) =>
+	res.send(data.toString())
+	)
+})
+
+app.listen(3000)
