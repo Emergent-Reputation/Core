@@ -14,6 +14,7 @@ contract Reputation {
 
     function getCID() public view returns (string memory) {
         console.log("SMART CONTRACT: GETCID %s ", msg.sender);
+        console.log("Stored CID is %s", Trusted[msg.sender]);
         return Trusted[msg.sender];
     }
 

@@ -44,9 +44,11 @@ async function read_data(cid){
 	}
 	const inStream = fs.createReadStream('ipld-local.car')
 	const reader = await CarReader.fromIterable(inStream)
-
+	if (typeof cid === 'string'){
+		cid = CID.parse(cid)
+	}
 	const recovered_payload = await reader.get(cid)
-
+	await inStream.close()
 
 	return dagCBOR.decode(recovered_payload.bytes)
 }
@@ -73,7 +75,7 @@ async function update_trusted_list(account, newTrustedAccount) {
 		payload = await read_data(cid)
 	}
 	payload.out_edges.push(newTrustedAccount.address)
-	newCID = await upload_data(payload)
+	const newCID = await upload_data(payload)
 	await contract.connect(account).updateTrustRelations(newCID.toString())
 
 	return newCID
@@ -90,7 +92,6 @@ let reputation = obj.rep
 let eth_accounts = obj.acc
 
 async function get_out_public_keys(source){
-	console.log("GETTING out keys for %s", source)
 	if (source === undefined) {
 		return {out_edges: []}
 	}
@@ -104,28 +105,27 @@ async function get_out_public_keys(source){
 }
 
 async function bfs(source, distance) {
-	const queue = [[source,0]];
-	const result = [];
-	const visited = {};
-	visited[source] = true;
-	let currentVertex;
-	let level;
+	const queue = [[source,0]]
+	const result = []
+	const visited = {}
+	visited[source] = true
+	let currentVertex
+	let level
 	while (queue.length) {
-	  next = queue.shift();
-	  currentVertex = next[0];
-	  level = next[1];
+	  next = queue.shift()
+	  currentVertex = next[0]
+	  level = next[1]
+	  if (level + 1 > distance) {
+		  break;
+	  }
 	  result.push(currentVertex);
 	  var adj = await get_out_public_keys(currentVertex);
-	  console.log("IMHERE %s & %s", adj.out_edges.toString(), adj.out_edges.length)
 	
 	  for(var i = 0; i < adj.out_edges.length; i++) {
-		console.log("IMHERE 2 %s", visited)
-		if (!visited[adj[i]]) {
-			if (level + 1 > distance) {
-				return Object.keys(visited);
-			}
-		  visited[adj[i]] = true;
-		  queue.push([adj[i], level+1]);
+		
+		if (!visited[adj.out_edges[i]]) {
+		  visited[adj.out_edges[i]] = true
+		  queue.push([adj.out_edges[i], level+1])
 		}
 	  };
 	}
@@ -152,20 +152,21 @@ app.get('/accounts/trust-relations', async (req, res) => {
 	const cid = await contract.connect(accounts[req.body.ref_id]).getCID()
 	const payload = await read_data(cid)
 	res.send(payload)
-	// accounts.then((accounts) => 
-	// 	reputation.then((contract) => {
-	// 		res.send(await read_data(await contract.connect(accounts[refID]).getCID()))
-	// 	}
-	// ))
 })
 
+app.get('/accounts/trust-relations-test', async (req, res) => {
+	const accounts = await eth_accounts
+	const contract = await reputation
+	out_keys = await get_out_public_keys(accounts[req.body.ref_id].address)
+	res.send(out_keys)
+})
 app.post('/accounts/trust-relations', async (req, res) => {
 	const accounts = await eth_accounts
 	const contract = await reputation
 	const newCID = await update_trusted_list(accounts[req.body.ref_id], accounts[req.body.account_to_add])
 	const newPayload = await read_data(newCID)
 	res.send(Object({
-		new_cid: newCID,
+		new_cid: newCID.toString(),
 		payload: newPayload
 	}))
 })
@@ -201,3 +202,6 @@ app.get('/accounts', (req, res) => {
 
 app.listen(3000)
 console.log("Server Started at Localhost:3000")
+upload_data({out_edges: []}).then((cid) => console.log(
+	"COMPLETED UPLOAD %s", cid.toString()
+))
