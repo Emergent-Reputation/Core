@@ -4,6 +4,7 @@ const { Framework } = require("@superfluid-finance/sdk-core");
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config();
 
+var contract;
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -12,6 +13,19 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   for (const account of accounts) {
     console.log(account.address);
   }
+});
+
+task("deploy", "Deploys the contracts and prints the Address", async (taskArgs, hre) => {
+  const Reputation  = await hre.ethers.getContractFactory("Reputation")
+  console.log(Reputation)
+  const reputation = await Reputation.deploy()
+
+  contract = reputation
+  console.log(reputation.address)
+});
+
+task("contract-address", "Gets the contract address", async (taskArgs, hre) => {
+  console.log(contract.address);
 });
 
 task("super", "print superfluid signer", async (taskArgs, hre) => {
