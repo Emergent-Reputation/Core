@@ -1,3 +1,6 @@
+const { task } = require("hardhat/config");
+const { Framework } = require("@superfluid-finance/sdk-core");
+
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config();
 
@@ -10,6 +13,21 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
+
+task("super", "print superfluid signer", async (taskArgs, hre) => {
+  const sf = await Framework.create({
+    networkName: "rinkeby",
+    provider: hre.ethers.provider,
+  });
+  
+  
+  const signer = sf.createSigner({
+    privateKey: "e7a729ed7e312d9b1d6e607796cc782be51b5388ba9ba8094ad7e0677bcc3ff8",
+    provider: hre.ethers.provider,
+  });
+  console.log(sf)
+  console.log(await signer.getAddress())
+})
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more

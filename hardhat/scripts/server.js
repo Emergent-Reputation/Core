@@ -16,7 +16,19 @@ const dagCBOR = require('@ipld/dag-cbor')
 // CAR utilities, see https://github.com/ipld/js-car for more info
 const { CarWriter } = require( '@ipld/car/writer')
 const { CarReader } = require( '@ipld/car/reader')
+const { Framework } =  require("@superfluid-finance/sdk-core");
+// import { ethers } from "ethers";
 
+const provider = new ethers.providers.InfuraProvider(
+  "rinkeby",
+  "08e4e847236f49e8a49524fb54de416c"
+);
+
+const wallet = new ethers.Wallet(
+  "e7a729ed7e312d9b1d6e607796cc782be51b5388ba9ba8094ad7e0677bcc3ff8",
+  provider
+);
+console.log(wallet.address)
 
 const utf8Encoder = new TextEncoder()
 const utf8Decoder = new TextDecoder()
@@ -219,6 +231,7 @@ app.get('/accounts', (req, res) => {
 		(accounts) => res.send(accounts[0].address)
 	)
 })
+
 
 
 app.listen(3000)
