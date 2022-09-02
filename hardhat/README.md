@@ -1,6 +1,10 @@
 # Smartcontract Repository
 
 
+### Pre-requistes 
+- Requires use of Node 16 (17 not supported)
+- To change node versions run `nvm use 16`
+
 The following are available commands:
 ```shell
 npx hardhat accounts
