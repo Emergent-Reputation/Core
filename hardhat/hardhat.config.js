@@ -1,5 +1,5 @@
 const { task } = require("hardhat/config");
-require("@nomicfoundation/hardhat-toolbox");
+// require("@nomicfoundation/hardhat-toolbox");
 
 // const { ethers } = require("hardhat");
 
@@ -26,11 +26,15 @@ task("deploy-contract", "Deploys the contract and prints the address")
 })
 
 task("read-list", "Reads list of deployed contract")
-  .addParam("contractAddress", "Address of contract deployed")
   .setAction(async (taskArgs) =>
   {
+    const [signer] = await hre.ethers.getSigners();
 
-    const contract = new hre.ethers.Contract(taskArgs.contractAddress);
+    const Reputation = await hre.ethers.getContractFactory("Reputation");
+    const reputation = await Reputation.deploy();
+    await reputation.deployed();
+
+    console.log( await reputation.getCID());
     
   })
 
