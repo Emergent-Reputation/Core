@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@alch/alchemy-web3": "^1.2.5",
+    "@futuretense/curve25519-elliptic": "^1.0.0",
+    "@futuretense/proxy-reencryption": "^2.0.0",
     "@ipld/car": "^4.0.0",
     "@ipld/dag-cbor": "^7.0.0",
     "@ipld/dag-json": "^8.0.1",

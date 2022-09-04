@@ -1,7 +1,8 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe.only("Testing the REK creation", function () {
+
+describe("Testing the REK creation", function () {
   it("Should map to correct address based string.", async function () {
     const Reputation = await ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
