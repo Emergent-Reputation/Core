@@ -29,7 +29,7 @@ contract Reputation {
         This can be done when an optimistic oracle has not disputed a correctness claim
         or if a certificate ZK Proof is provided.
     */
-    enum PaymentLifeCycle{REQUESTED,RESPONDED,CLEARED}
+    enum PaymentLifeCycle{UNSET,REQUESTED,RESPONDED,CLEARED}
    
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
     mapping (address=>mapping(address=>string)) REKs;
@@ -39,16 +39,26 @@ contract Reputation {
         return msg.sender;
     }
 
+    // Pair of relevant values to move through queue.
     mapping(address=>address[]) requestQueue;
-    mapping (address=>mapping(address=>bool)) requestAddresses;
+    mapping(address=>uint256) handled;
 
+    mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
+
+    function getCurrentREKRequestState(address targetAddress) public view PaymentLifeCycle {
+        return requestForREKStage[targetAddress][msg.sender];
+    }
+    
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
     */
     function makeRequestForTrustRelationsDecryption(address targetAddress) public {
         // Require user at this stage to not be in requested/responded state.
+        require(requestForREKStage[targetAddress][msg.sender] == PaymentLifeCycle.UNSET, "ALREADY_REQUESTED");
         requestQueue[targetAddress].push(msg.sender);
+        requestForREKStage[targetAddress][msg.sender] = PaymentLifeCycle.REQUESTED;
+        console.log(uint(requestForREKStage[targetAddress][msg.sender]));
     }
 
     function makePaymentForDecryption() payable public {

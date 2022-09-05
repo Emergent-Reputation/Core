@@ -11,6 +11,17 @@ const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
 describe.only('re-encrypt', function () {
+    it.only("Should flow through lifecylce of payment to contract", async () => {
+        // Constructs smart contract
+        const Reputation = await ethers.getContractFactory("Reputation");
+        const reputation = await Reputation.deploy();
+        await reputation.deployed();
+
+        const [owner, addy1, addy2] = await ethers.getSigners();
+        await reputation.connect(addy1).makeRequestForTrustRelationsDecryption(addy2.address);
+
+
+    })
     // it("Should play around with wallet connections", async () => {
     //     // Constructs smart contract
     //     const Reputation = await ethers.getContractFactory("Reputation");
