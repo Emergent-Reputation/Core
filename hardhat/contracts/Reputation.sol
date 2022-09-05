@@ -14,6 +14,7 @@ contract Reputation {
     function retrieve() public view returns (bytes memory r1, bytes memory r2, bytes memory r3) {
         (r1,r2,r3) = abi.decode(REK, (bytes,bytes,bytes));
     }
+
     /*
         The payment lifecycle of a proposal flow steps through 3 (+1 implict) phases.
 
@@ -45,10 +46,10 @@ contract Reputation {
 
     mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
 
-    function getCurrentREKRequestState(address targetAddress) public view PaymentLifeCycle {
+    function getCurrentREKRequestState(address targetAddress) public view returns (PaymentLifeCycle) {
         return requestForREKStage[targetAddress][msg.sender];
     }
-    
+
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.

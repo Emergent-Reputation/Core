@@ -11,7 +11,7 @@ const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
 describe.only('re-encrypt', function () {
-    it.only("Should flow through lifecylce of payment to contract", async () => {
+    it("Should flow through lifecylce of payment to contract", async () => {
         // Constructs smart contract
         const Reputation = await ethers.getContractFactory("Reputation");
         const reputation = await Reputation.deploy();
@@ -19,8 +19,9 @@ describe.only('re-encrypt', function () {
 
         const [owner, addy1, addy2] = await ethers.getSigners();
         await reputation.connect(addy1).makeRequestForTrustRelationsDecryption(addy2.address);
+        const lifecycleState = await reputation.connect(addy1).getCurrentREKRequestState(addy2.address);
 
-
+        expect(lifecycleState).to.equal(1)
     })
     // it("Should play around with wallet connections", async () => {
     //     // Constructs smart contract
@@ -87,7 +88,6 @@ describe.only('re-encrypt', function () {
 
     const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
     const newPlaintext = await bobPRE.reDecrypt(reCipher);
-
 
     expect(newPlaintext.toString()).to.equal(data.toString());
     // console.log(Buffer.from(w.privateKey.substring(2), 'hex'));
