@@ -1,6 +1,17 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+
+describe("Testing the REK creation", function () {
+  it("Should map to correct address based string.", async function () {
+    const Reputation = await ethers.getContractFactory("Reputation");
+    const reputation = await Reputation.deploy();
+    await reputation.deployed();
+
+    await reputation.postREK("0xc3bc246D6B0094C8B7D054f911F2bE3b07cE8A63");
+  })
+})
+
 describe("Basic Deployment & Functionality", function () {
   it("Should return the string mapped to requesting account.", async function () {
     const Reputation = await ethers.getContractFactory("Reputation");
