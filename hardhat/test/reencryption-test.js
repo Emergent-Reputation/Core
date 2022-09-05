@@ -1,6 +1,7 @@
 
-const {PRE, ReKey} = require('@futuretense/proxy-reencryption');
-const { ethers } = require("hardhat");
+const {PRE} = require('@futuretense/proxy-reencryption');
+const { ethers} = require("hardhat");
+const {SignerWithAddress} = require("@nomiclabs/hardhat-ethers/signers")
 
 
 const { curve } = require('@futuretense/curve25519-elliptic');
@@ -10,8 +11,34 @@ const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
 describe.only('re-encrypt', function () {
+    // it("Should play around with wallet connections", async () => {
+    //     // Constructs smart contract
+    //     const Reputation = await ethers.getContractFactory("Reputation");
+    //     const reputation = await Reputation.deploy();
+    //     await reputation.deployed();
+
+    //     // Eth Wallet Creation
+    //     const aliceWallet = await ethers.Wallet.createRandom();
+    //     const bobWallet = await ethers.Wallet.createRandom();
+    //     // const aliceSigningKey = aliceWallet._signingKey();
+    //     console.log(aliceWallet.getAddress());
+
+    //     // console.log(aliceSigningKey.address);
+    //     const [adr2] = await ethers.getSigners();
+        
+    //     const adr = await SignerWithAddress.create(aliceWallet);
+    //     console.log(await adr.connect(ethers.getDefaultProvider()).getBalance());
+    //     // console.log( adr.getBalance());
+
+    //     console.log(typeof(adr));
+    //     console.log(typeof(adr2));
+
+    //     await reputation.connect(adr.connect(ethers.getDefaultProvider())).updateTrustRelations("test");
+    //     // console.log(adr + '🚀');
+    // })
     it("Should do re-encryption", async () => {
-    
+
+
     // Constructs smart contract
     const Reputation = await ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
@@ -20,7 +47,6 @@ describe.only('re-encrypt', function () {
     // Eth Wallet Creation
     const aliceWallet = await ethers.Wallet.createRandom();
     const bobWallet = await ethers.Wallet.createRandom();
-
     // Get cruve scalar private keys.
     const aliceKeyScalar = curve.scalarFromBuffer(Buffer.from(aliceWallet.privateKey.substring(2), 'hex'));
     const bobKeyScalar = curve.scalarFromBuffer(Buffer.from(bobWallet.privateKey.substring(2), 'hex'));
@@ -51,7 +77,7 @@ describe.only('re-encrypt', function () {
     const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
     const newPlaintext = await bobPRE.reDecrypt(reCipher);
 
-    
+
     expect(newPlaintext.toString()).to.equal(data.toString());
     // console.log(Buffer.from(w.privateKey.substring(2), 'hex'));
     // console.log("I fail here.")

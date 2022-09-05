@@ -37,6 +37,11 @@ contract Reputation {
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
     mapping (address=>mapping(address=>string)) REKs;
 
+    function getAddress() public view returns (address) {
+        console.log("Sender is %s", msg.sender);
+        return msg.sender;
+    }
+
 
     mapping (address=>mapping(address=>bool)) requestAddresses; 
     
