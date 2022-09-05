@@ -1,5 +1,5 @@
 
-const {PRE} = require('@futuretense/proxy-reencryption');
+const {PRE, ReKey} = require('@futuretense/proxy-reencryption');
 const { ethers } = require("hardhat");
 
 
@@ -21,12 +21,18 @@ describe.only('re-encrypt', async () => {
     const alicePK = curve.basepoint.mul(aliceKeyScalar).toBuffer();
     const bobPK =  curve.basepoint.mul(bobKeyScalar).toBuffer();
 
+    // Load concrete implementation of re-encryption utility.
     const alicePRE = new PRE(aliceKeyScalar.toBuffer(), curve);
+
+    // Run Base Algo of encrypting 
     const selfCipher = await alicePRE.selfEncrypt(data, tag);
 
     const bobREK = alicePRE.generateReKey(bobPK, tag);
-
-    const reCipher = PRE.reEncrypt(bobPK, selfCipher, bobREK, curve);
+    const key = {
+        R1: bobREK.R1, R2: bobREK.R2, R3: bobREK.R3
+    };
+    console.log(key);
+    const reCipher = PRE.reEncrypt(bobPK, selfCipher, key, curve);
 
     const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
     const newPlaintext = await bobPRE.reDecrypt(reCipher);

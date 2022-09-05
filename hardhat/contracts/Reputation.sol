@@ -4,7 +4,15 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 contract Reputation {
-    
+    bytes REK;
+
+    function store(bytes memory R1, bytes memory R2, bytes memory R3) public {
+        REK = abi.encode(R1, R2, R3);
+    }
+
+    function retrieve() public view returns (bytes memory) {
+        return REK;
+    }
     /*
         The payment lifecycle of a proposal flow steps through 3 (+1 implict) phases.
 
