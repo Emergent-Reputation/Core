@@ -4,6 +4,7 @@ const { ethers } = require("hardhat");
 
 
 const { curve } = require('@futuretense/curve25519-elliptic');
+const { expect } = require('chai');
 
 const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
@@ -35,21 +36,23 @@ describe.only('re-encrypt', function () {
     const selfCipher = await alicePRE.selfEncrypt(data, tag);
 
     const bobREK = alicePRE.generateReKey(bobPK, tag);
-    const key = {
-        R1: bobREK.R1, R2: bobREK.R2, R3: bobREK.R3
-    };
-    console.log(key);
+   
     await reputation.store(bobREK.R1, bobREK.R2, bobREK.R3);
 
     const bytesList = await reputation.retrieve();
-
-    console.log(bytesList);
+    const key = {
+        R1: Buffer.from(bytesList.r1.substring(2), 'hex'), R2: Buffer.from(bytesList.r2.substring(2), 'hex'), R3: Buffer.from(bytesList.r3.substring(2), 'hex')
+    };
+    console.log(key);
+    // console.log(bytesList);
 
     const reCipher = PRE.reEncrypt(bobPK, selfCipher, key, curve);
 
     const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
     const newPlaintext = await bobPRE.reDecrypt(reCipher);
-    console.log("%s", newPlaintext);
+
+    
+    expect(newPlaintext.toString()).to.equal(data.toString());
     // console.log(Buffer.from(w.privateKey.substring(2), 'hex'));
     // console.log("I fail here.")
     // const aliceKey = curve.scalarFromBuffer(Buffer.from("e7a729ed7e312d9b1d6e607796cc782be51b5388ba9ba8094ad7e0677bcc3ff8", 'hex'));
