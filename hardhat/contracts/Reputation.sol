@@ -6,6 +6,7 @@ import "hardhat/console.sol";
 contract Reputation {
     bytes REK;
 
+    
     function store(bytes memory R1, bytes memory R2, bytes memory R3) public {
         REK = abi.encode(R1, R2, R3);
     }
@@ -29,11 +30,7 @@ contract Reputation {
         or if a certificate ZK Proof is provided.
     */
     enum PaymentLifeCycle{REQUESTED,RESPONDED,CLOSED}
-    
-    // Trusted presents a mapping between addresses and the CIDs holding a list of nodes 
-    // that are part of it's edge set.
-    mapping (address=>string) Trusted;
-
+   
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
     mapping (address=>mapping(address=>string)) REKs;
 
@@ -42,9 +39,31 @@ contract Reputation {
         return msg.sender;
     }
 
+    mapping(address=>address[]) requestQueue;
+    mapping (address=>mapping(address=>bool)) requestAddresses;
 
-    mapping (address=>mapping(address=>bool)) requestAddresses; 
-    
+    /* 
+        TODO(@ckartik): Vunreability.
+        Need to somehow block an attack where users overload the list with requests.
+    */
+    function makeRequestForTrustRelationsDecryption(address targetAddress) public {
+        // Require user at this stage to not be in requested/responded state.
+        requestQueue[targetAddress].push(msg.sender);
+    }
+
+    function makePaymentForDecryption() payable public {
+
+    }
+
+    /*
+        Free Look up of CID info.
+            - If un-encrypted, the data will be accessible without requirement of payment.
+    */
+     
+    // Trusted presents a mapping between addresses and the CIDs holding a list of nodes 
+    // that are part of it's edge set.
+    mapping (address=>string) Trusted;
+
     // Overloaded for backward comptitatibilty
     function getCIDFor(address query) public view returns (string memory) {
         return Trusted[query];
