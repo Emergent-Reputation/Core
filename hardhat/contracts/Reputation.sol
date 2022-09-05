@@ -10,8 +10,8 @@ contract Reputation {
         REK = abi.encode(R1, R2, R3);
     }
 
-    function retrieve() public view returns (bytes memory) {
-        return REK;
+    function retrieve() public view returns (bytes memory r1, bytes memory r2, bytes memory r3) {
+        (r1,r2,r3) = abi.decode(REK, (bytes,bytes,bytes));
     }
     /*
         The payment lifecycle of a proposal flow steps through 3 (+1 implict) phases.

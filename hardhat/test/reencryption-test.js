@@ -8,7 +8,14 @@ const { curve } = require('@futuretense/curve25519-elliptic');
 const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
-describe.only('re-encrypt', async () => {
+describe.only('re-encrypt', function () {
+    it("Should do re-encryption", async () => {
+    
+    // Constructs smart contract
+    const Reputation = await ethers.getContractFactory("Reputation");
+    const reputation = await Reputation.deploy();
+    await reputation.deployed();
+
     // Eth Wallet Creation
     const aliceWallet = await ethers.Wallet.createRandom();
     const bobWallet = await ethers.Wallet.createRandom();
@@ -32,6 +39,12 @@ describe.only('re-encrypt', async () => {
         R1: bobREK.R1, R2: bobREK.R2, R3: bobREK.R3
     };
     console.log(key);
+    await reputation.store(bobREK.R1, bobREK.R2, bobREK.R3);
+
+    const bytesList = await reputation.retrieve();
+
+    console.log(bytesList);
+
     const reCipher = PRE.reEncrypt(bobPK, selfCipher, key, curve);
 
     const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
@@ -60,4 +73,5 @@ describe.only('re-encrypt', async () => {
     // const data2 = await bobPre.reDecrypt(rem);
     // console.log(data2)
     // t.true(data.compare(data2) === 0);
-});
+})
+})
