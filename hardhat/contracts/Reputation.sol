@@ -58,7 +58,9 @@ contract Reputation {
     function getCurrentREKRequestState(address targetAddress) public view returns (PaymentLifeCycle) {
         return requestForREKStage[targetAddress][msg.sender];
     }
-
+    function getPublicKey(address targetAddress) public view returns (bytes memory) {
+        return publicKeys[targetAddress];
+    }
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
@@ -69,7 +71,6 @@ contract Reputation {
         require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
         requestQueue[targetAddress].push(msg.sender);
         requestForREKStage[targetAddress][msg.sender] = PaymentLifeCycle.REQUESTED;
-        console.log(uint(requestForREKStage[targetAddress][msg.sender]));
         publicKeys[msg.sender] = publicKey;
     }
 
