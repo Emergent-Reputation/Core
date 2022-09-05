@@ -5,8 +5,16 @@ import "hardhat/console.sol";
 
 contract Reputation {
     bytes REK;
+    bytes tag;
 
+    constructor() {
+        tag = abi.encode("tag");
+    }
     
+    function getTag() public view returns (bytes memory) {
+        return tag;
+    }
+
     function store(bytes memory R1, bytes memory R2, bytes memory R3) public {
         REK = abi.encode(R1, R2, R3);
     }
@@ -45,6 +53,7 @@ contract Reputation {
     mapping(address=>uint256) handled;
 
     mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
+    mapping (address=>bytes) publicKeys;
 
     function getCurrentREKRequestState(address targetAddress) public view returns (PaymentLifeCycle) {
         return requestForREKStage[targetAddress][msg.sender];
@@ -54,13 +63,14 @@ contract Reputation {
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
     */
-    function makeRequestForTrustRelationsDecryption(address targetAddress) payable public {
+    function makeRequestForTrustRelationsDecryption(address targetAddress, bytes memory publicKey) payable public {
         // Require user at this stage to not be in requested/responded state.
         require(requestForREKStage[targetAddress][msg.sender] == PaymentLifeCycle.UNSET, "ALREADY_REQUESTED");
         require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
         requestQueue[targetAddress].push(msg.sender);
         requestForREKStage[targetAddress][msg.sender] = PaymentLifeCycle.REQUESTED;
         console.log(uint(requestForREKStage[targetAddress][msg.sender]));
+        publicKeys[msg.sender] = publicKey;
     }
 
 

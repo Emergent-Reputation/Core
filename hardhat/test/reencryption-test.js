@@ -1,11 +1,12 @@
 
 const {PRE} = require('@futuretense/proxy-reencryption');
-const { ethers} = require("hardhat");
+const {ethers, network} = require("hardhat");
 const {SignerWithAddress} = require("@nomiclabs/hardhat-ethers/signers")
 
 
 const { curve } = require('@futuretense/curve25519-elliptic');
 const { expect } = require('chai');
+const { Provider } = require('@ethersproject/abstract-provider');
 
 const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
@@ -18,7 +19,10 @@ describe.only('re-encrypt', function () {
         await reputation.deployed();
 
         const [owner, addy1, addy2] = await ethers.getSigners();
-        await reputation.connect(addy1).makeRequestForTrustRelationsDecryption(addy2.address, {
+        console.log(addy1.privateKey)
+        // const bobKeyScalar = curve.scalarFromBuffer(Buffer.from(addy1.privateKey.substring(2), 'hex'));
+
+        await reputation.connect(addy1).makeRequestForTrustRelationsDecryption(addy2.address, Buffer.from("2ff", 'hex'), {
             value: ethers.utils.parseUnits("100", "gwei")
         });
         const lifecycleState = await reputation.connect(addy1).getCurrentREKRequestState(addy2.address);
@@ -47,10 +51,10 @@ describe.only('re-encrypt', function () {
     //     console.log(typeof(adr));
     //     console.log(typeof(adr2));
 
-    //     await reputation.connect(adr.connect(ethers.getDefaultProvider())).updateTrustRelations("test");
+        // await reputation.connect(adr.connect(ethers.getDefaultProvider())).updateTrustRelations("test");
     //     // console.log(adr + '🚀');
     // })
-    it("Should do re-encryption", async () => {
+    it.only("Should do re-encryption", async () => {
 
 
     // Constructs smart contract
@@ -59,8 +63,17 @@ describe.only('re-encrypt', function () {
     await reputation.deployed();
 
     // Eth Wallet Creation
-    const aliceWallet = await ethers.Wallet.createRandom();
-    const bobWallet = await ethers.Wallet.createRandom();
+    const aliceWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
+    await network.provider.send("hardhat_setBalance", [
+        aliceWallet.address,
+        "0xffffffffffffffffffffffffffff",
+    ]);
+    const bobWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
+    await network.provider.send("hardhat_setBalance", [
+        bobWallet.address,
+        "0xffffffffffffffffffffffffffff",
+    ]);
+    
     // Get cruve scalar private keys.
     const aliceKeyScalar = curve.scalarFromBuffer(Buffer.from(aliceWallet.privateKey.substring(2), 'hex'));
     const bobKeyScalar = curve.scalarFromBuffer(Buffer.from(bobWallet.privateKey.substring(2), 'hex'));
@@ -68,6 +81,13 @@ describe.only('re-encrypt', function () {
     // Generate Public Key
     const alicePK = curve.basepoint.mul(aliceKeyScalar).toBuffer();
     const bobPK =  curve.basepoint.mul(bobKeyScalar).toBuffer();
+
+    const bob =  await SignerWithAddress.create(bobWallet);
+    await reputation.connect(bob).makeRequestForTrustRelationsDecryption(aliceWallet.address, Buffer.from("2ff", 'hex'), {
+        value: ethers.utils.parseUnits("100", "gwei")
+    });
+    const lifecycleState = await reputation.connect(bob).getCurrentREKRequestState(aliceWallet.address);
+    expect(lifecycleState).to.equal(1)
 
     // Load concrete implementation of re-encryption utility.
     const alicePRE = new PRE(aliceKeyScalar.toBuffer(), curve);
