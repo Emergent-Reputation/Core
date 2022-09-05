@@ -18,7 +18,9 @@ describe.only('re-encrypt', function () {
         await reputation.deployed();
 
         const [owner, addy1, addy2] = await ethers.getSigners();
-        await reputation.connect(addy1).makeRequestForTrustRelationsDecryption(addy2.address);
+        await reputation.connect(addy1).makeRequestForTrustRelationsDecryption(addy2.address, {
+            value: ethers.utils.parseUnits("100", "gwei")
+        });
         const lifecycleState = await reputation.connect(addy1).getCurrentREKRequestState(addy2.address);
 
         expect(lifecycleState).to.equal(1)

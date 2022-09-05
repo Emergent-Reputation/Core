@@ -54,17 +54,15 @@ contract Reputation {
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
     */
-    function makeRequestForTrustRelationsDecryption(address targetAddress) public {
+    function makeRequestForTrustRelationsDecryption(address targetAddress) payable public {
         // Require user at this stage to not be in requested/responded state.
         require(requestForREKStage[targetAddress][msg.sender] == PaymentLifeCycle.UNSET, "ALREADY_REQUESTED");
+        require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
         requestQueue[targetAddress].push(msg.sender);
         requestForREKStage[targetAddress][msg.sender] = PaymentLifeCycle.REQUESTED;
         console.log(uint(requestForREKStage[targetAddress][msg.sender]));
     }
 
-    function makePaymentForDecryption() payable public {
-
-    }
 
     /*
         Free Look up of CID info.
