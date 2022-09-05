@@ -29,7 +29,7 @@ contract Reputation {
         This can be done when an optimistic oracle has not disputed a correctness claim
         or if a certificate ZK Proof is provided.
     */
-    enum PaymentLifeCycle{REQUESTED,RESPONDED,CLOSED}
+    enum PaymentLifeCycle{REQUESTED,RESPONDED,CLEARED}
    
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
     mapping (address=>mapping(address=>string)) REKs;
