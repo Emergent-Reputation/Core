@@ -6,9 +6,11 @@ import "hardhat/console.sol";
 contract Reputation {
     bytes REK;
     bytes tag;
+    uint paymentValue;
 
     constructor() {
         tag = abi.encode("tag");
+        paymentValue = 10**15;
     }
     
     function getTag() public view returns (bytes memory) {
@@ -32,7 +34,7 @@ contract Reputation {
 
         TODO(@ckartik): Need a way to reset this lifecycle back to intial state.
     */
-    enum PaymentLifeCycle{UNSET,REQUESTED,RESPONDED,CLEARED}
+    enum PaymentLifeCycle{UNSET_OR_CLEARED,REQUESTED,RESPONDED,CLEARED}
    
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
     mapping (address=>mapping(address=>string)) REKs;
@@ -77,16 +79,21 @@ contract Reputation {
     function postReKey(address requestingAddress, bytes memory r1, bytes memory r2, bytes memory r3) public {
         require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.REQUESTED, "INVALID_STATE_TRANSITION");
         
-        requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.RESPONDED;
         rekPerUser[msg.sender][requestingAddress] = abi.encode(r1,r2,r3);
+
+        requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.RESPONDED;
     }
    
 
     /* 
         This method will clear funds to Alice once the exchange has been completed.
     */
-    function closePayment() public {
-        require(false, "UNIMPLMENTED_FUNCTION");
+    function closeFunds(address requestingAddress) payable public {
+        require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
+
+        payable(msg.sender).transfer(paymentValue);
+        console.log("Paying out funds");
+        requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.UNSET_OR_CLEARED;
     }
     
     /* 
@@ -95,7 +102,7 @@ contract Reputation {
     */
     function makeRequestForTrustRelationsDecryption(address targetAddress, bytes memory publicKey) payable public {
         // Require user at this stage to not be in requested/responded state.
-        require(requestForREKStage[targetAddress][msg.sender] == PaymentLifeCycle.UNSET, "ALREADY_REQUESTED");
+        require(requestForREKStage[targetAddress][msg.sender] == PaymentLifeCycle.UNSET_OR_CLEARED, "ALREADY_REQUESTED");
         require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
         requestQueue[targetAddress].push(msg.sender);
         requestForREKStage[targetAddress][msg.sender] = PaymentLifeCycle.REQUESTED;
