@@ -78,14 +78,19 @@ describe.only('re-encrypt', function () {
         };
       
         const b1 = await alice.getBalance();
-        console.log(b1);
+
         /* 
             Alice closes out funds.
         */
         await reputation.connect(alice).closeFunds(bob.address);
         const b2 = await alice.getBalance();
-        console.log(b2);
-        console.log(b2.sub(b1));
+        const aliceIncome = b2.sub(b1);
+        const rewardMax = ethers.utils.parseUnits("1000000", "gwei");
+        const rewardsFloor = ethers.utils.parseUnits("900000", "gwei");
+      
+        // Check that income/reward fits in boundry.
+        expect(aliceIncome.lte(rewardMax) && aliceIncome.gte(rewardsFloor)).to.equal(true);
+
         /* 
             Of-Chain Decryption of data
             TODO(@ckartik): Convert this to be using IPFS style data source with a CID.

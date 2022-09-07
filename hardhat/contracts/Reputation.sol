@@ -40,7 +40,6 @@ contract Reputation {
     mapping (address=>mapping(address=>string)) REKs;
 
     function getAddress() public view returns (address) {
-        console.log("Sender is %s", msg.sender);
         return msg.sender;
     }
 
