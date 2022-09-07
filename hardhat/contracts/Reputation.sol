@@ -6,6 +6,8 @@ import "hardhat/console.sol";
 contract Reputation {
     bytes REK;
     bytes tag;
+
+    // Note: Reward/Payment recieved to Bob will be slightly less than what Alice pays due to network fees.
     uint paymentValue;
 
     constructor() {
