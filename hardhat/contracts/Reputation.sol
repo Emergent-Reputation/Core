@@ -15,14 +15,6 @@ contract Reputation {
         return tag;
     }
 
-    function store(bytes memory R1, bytes memory R2, bytes memory R3) public {
-        REK = abi.encode(R1, R2, R3);
-    }
-
-    function retrieve() public view returns (bytes memory r1, bytes memory r2, bytes memory r3) {
-        (r1,r2,r3) = abi.decode(REK, (bytes,bytes,bytes));
-    }
-
     /*
         The payment lifecycle of a proposal flow steps through 3 (+1 implict) phases.
 
@@ -83,8 +75,8 @@ contract Reputation {
         Function invoked by the owner to post a key - requires passed requesting address to have made payment and requested keys.
     */
     function postReKey(address requestingAddress, bytes memory r1, bytes memory r2, bytes memory r3) public {
-        console.log(requestingAddress);
         require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.REQUESTED, "INVALID_STATE_TRANSITION");
+        
         requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.RESPONDED;
         rekPerUser[msg.sender][requestingAddress] = abi.encode(r1,r2,r3);
     }
@@ -93,9 +85,9 @@ contract Reputation {
     /* 
         This method will clear funds to Alice once the exchange has been completed.
     */
-    // function closePayment() public {
-    //     require(false, "UNIMPLMENTED_FUNCTION");
-    // }
+    function closePayment() public {
+        require(false, "UNIMPLMENTED_FUNCTION");
+    }
     
     /* 
         TODO(@ckartik): Vunreability.
