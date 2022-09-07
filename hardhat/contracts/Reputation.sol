@@ -52,7 +52,12 @@ contract Reputation {
     mapping(address=>address[]) requestQueue;
     mapping(address=>uint256) handled;
 
+    // Owner of CID => Requesting Address -> Stage
     mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
+    // Owner of CID -> Requesting Address -> REK
+    mapping (address=>mapping(address=>bytes)) rekPerUser;
+
+    // Requesting Address -> Public Key
     mapping (address=>bytes) publicKeys;
 
     function getCurrentREKRequestState(address targetAddress) public view returns (PaymentLifeCycle) {
@@ -61,6 +66,14 @@ contract Reputation {
     function getPublicKey(address targetAddress) public view returns (bytes memory) {
         return publicKeys[targetAddress];
     }
+
+    function postREK(address requestingAddress, bytes memory r1, bytes memory r2, bytes memory r3) public {
+        require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.REQUESTED, "INVALID_STATE_TRANSITION");
+        
+        requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.RESPONDED;
+        rekPerUser[msg.sender][requestingAddress] = abi.encode(r1,r2,r3);
+    }
+
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
