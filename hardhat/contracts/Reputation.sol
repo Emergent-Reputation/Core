@@ -15,14 +15,6 @@ contract Reputation {
         return tag;
     }
 
-    function store(bytes memory R1, bytes memory R2, bytes memory R3) public {
-        REK = abi.encode(R1, R2, R3);
-    }
-
-    function retrieve() public view returns (bytes memory r1, bytes memory r2, bytes memory r3) {
-        (r1,r2,r3) = abi.decode(REK, (bytes,bytes,bytes));
-    }
-
     /*
         The payment lifecycle of a proposal flow steps through 3 (+1 implict) phases.
 
@@ -37,6 +29,8 @@ contract Reputation {
         The final step is closed, when the re-encryption key has been deemed valid.
         This can be done when an optimistic oracle has not disputed a correctness claim
         or if a certificate ZK Proof is provided.
+
+        TODO(@ckartik): Need a way to reset this lifecycle back to intial state.
     */
     enum PaymentLifeCycle{UNSET,REQUESTED,RESPONDED,CLEARED}
    
@@ -67,13 +61,34 @@ contract Reputation {
         return publicKeys[targetAddress];
     }
 
-    function postREK(address requestingAddress, bytes memory r1, bytes memory r2, bytes memory r3) public {
+    /* 
+        Get the re-encryption key.
+        Requires state transition to be at the point where a key exists in the smart-contract.
+    */
+    function getReKey(address owner) public view returns (bytes memory r1, bytes memory r2,bytes memory r3) {
+        require(requestForREKStage[owner][msg.sender] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
+
+        (r1,r2,r3) = abi.decode(rekPerUser[owner][msg.sender], (bytes,bytes,bytes));
+    }
+
+    /*
+        Function invoked by the owner to post a key - requires passed requesting address to have made payment and requested keys.
+    */
+    function postReKey(address requestingAddress, bytes memory r1, bytes memory r2, bytes memory r3) public {
         require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.REQUESTED, "INVALID_STATE_TRANSITION");
         
         requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.RESPONDED;
         rekPerUser[msg.sender][requestingAddress] = abi.encode(r1,r2,r3);
     }
+   
 
+    /* 
+        This method will clear funds to Alice once the exchange has been completed.
+    */
+    function closePayment() public {
+        require(false, "UNIMPLMENTED_FUNCTION");
+    }
+    
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
