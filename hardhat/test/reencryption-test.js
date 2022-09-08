@@ -2,7 +2,7 @@
 const {PRE} = require('@futuretense/proxy-reencryption');
 const {ethers, network} = require("hardhat");
 const {SignerWithAddress} = require("@nomiclabs/hardhat-ethers/signers")
-
+const {BigNumber} = require("@ethersproject/bignumber")
 
 const { curve } = require('@futuretense/curve25519-elliptic');
 const { expect } = require('chai');
@@ -55,7 +55,7 @@ describe.only('re-encrypt', function () {
             Bob connects to request the data from Alice and pays dues.
         */
         await reputation.connect(bob).makeRequestForTrustRelationsDecryption(aliceWallet.address, bobPK, {
-            value: ethers.utils.parseUnits("100", "gwei")
+            value: ethers.utils.parseUnits("1000000", "gwei")
         });
         const lifecycleState = await reputation.connect(bob).getCurrentREKRequestState(aliceWallet.address);
         
@@ -77,6 +77,20 @@ describe.only('re-encrypt', function () {
             R1: Buffer.from(bytesList.r1.substring(2), 'hex'), R2: Buffer.from(bytesList.r2.substring(2), 'hex'), R3: Buffer.from(bytesList.r3.substring(2), 'hex')
         };
       
+        const b1 = await alice.getBalance();
+
+        /* 
+            Alice closes out funds.
+        */
+        await reputation.connect(alice).closeFunds(bob.address);
+        const b2 = await alice.getBalance();
+        const aliceIncome = b2.sub(b1);
+        const rewardMax = ethers.utils.parseUnits("1000000", "gwei");
+        const rewardsFloor = ethers.utils.parseUnits("900000", "gwei");
+      
+        // Check that income/reward fits in boundry.
+        expect(aliceIncome.lte(rewardMax) && aliceIncome.gte(rewardsFloor)).to.equal(true);
+
         /* 
             Of-Chain Decryption of data
             TODO(@ckartik): Convert this to be using IPFS style data source with a CID.
