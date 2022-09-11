@@ -12,16 +12,6 @@ const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
 
-
-class ReputationReCryptor {
-
-    constructor(secretKey, contract) {
-        this.secretKey = secretKey;
-        this.contract = contract;
-        this.Wallet = ethers.Wallet.c
-    }
-}
-
 describe.only('re-encrypt', function () {
     it("Should do re-encryption with new store and retrieve mechanism", async () => {
         // Constructs smart contract
