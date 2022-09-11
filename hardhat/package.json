@@ -24,5 +24,8 @@
     "multiformats": "^9.6.4",
     "recrypt-js": "^1.1.2",
     "web3": "^1.7.1"
+  },
+  "scripts": {
+    "test": "npx hardhat test"
   }
 }
