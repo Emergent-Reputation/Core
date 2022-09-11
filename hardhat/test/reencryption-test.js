@@ -11,13 +11,27 @@ const { Provider } = require('@ethersproject/abstract-provider');
 const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
+
+
+class ReputationReCryptor {
+
+    constructor(secretKey, contract) {
+        this.secretKey = secretKey;
+        this.contract = contract;
+        this.Wallet = ethers.Wallet.c
+    }
+}
+
 describe.only('re-encrypt', function () {
     it("Should do re-encryption with new store and retrieve mechanism", async () => {
         // Constructs smart contract
         const Reputation = await ethers.getContractFactory("Reputation");
-        const reputation = await Reputation.deploy();
-        await reputation.deployed();
-    
+        const reputationDeployed = await Reputation.deploy();
+        await reputationDeployed.deployed();
+        
+        // Faking retriveal of self-deployed contract to ensure effectiveness of passed in variant
+        const reputation = await ethers.getContractAt("Reputation", reputationDeployed.address);
+
         // Eth Wallet Creation
         const aliceWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
         await network.provider.send("hardhat_setBalance", [
