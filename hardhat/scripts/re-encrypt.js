@@ -43,8 +43,9 @@ class EmergentReputation {
     if (cid === ""){
       payload = {out_edges: []}
     } else {
-      payload = await read_data(cid)
+      payload = await EmergentReputation.read_data(cid)
     }
+    // What to do with the payload -> Likely want to alter and post.
   }
 
   async removeTrustRelation() {
