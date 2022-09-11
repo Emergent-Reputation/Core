@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <script src="./node_modules/immortal-db/dist/immortal-db.min.js"></script> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script async>
+      console.log("INIT");
+      const init = async () => {
+          const db = ImmortalDB.ImmortalDB;
+
+          // Note: This is a test account.
+          await db.set("secret_key", "secret-key-value");
+          
+          console.log("DB value has been set.");
+
+          $("#main").append(await db.get("key"));
+          $("#main").append(await db.get("hi"));
+      }
+
+      init()
+    </script> 
+  </head>
+  <p id="main">Hello {db}</p>
+</html>
