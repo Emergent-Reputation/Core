@@ -26,6 +26,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        cache-dependency-path: 'hardhat/package.json'
     - run: cd hardhat
     - run: npm ci
     - run: npm run build --if-present
