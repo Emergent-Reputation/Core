@@ -70,17 +70,11 @@ class EmergentReputation {
   
     return dagCBOR.decode(recovered_payload.bytes)
   }
-  
-  
 
   async getAddress() {
     return await this.contract.connect(this.wallet).getAddress();
   }
 
-  async addEncryptedTrustRelation() {
-
-  }
-  
   async encrypt(value, tag) {
     return await this.PRECore.selfEncrypt(value, tag);
   }
@@ -135,6 +129,10 @@ class EmergentReputation {
 
   }
   
+  async approveRequest() {
+    
+  }
+
 }
 
 function foo() {
