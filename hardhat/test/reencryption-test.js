@@ -86,7 +86,7 @@ describe.only('re-encrypt', function () {
         /* 
             Alice closes out funds.
         */
-        await reputation.connect(alice).closeFunds(bob.address);
+        await reputation.connect(alice).clearFunds(bob.address);
         const b2 = await alice.getBalance();
         const aliceIncome = b2.sub(b1);
         const rewardMax = ethers.utils.parseUnits("1000000", "gwei");

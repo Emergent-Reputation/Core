@@ -37,7 +37,14 @@ contract Reputation {
         TODO(@ckartik): Need a way to reset this lifecycle back to intial state.
     */
     enum PaymentLifeCycle{UNSET_OR_CLEARED,REQUESTED,RESPONDED,CLEARED}
-   
+
+    // This event will be emited to notify that a transaction lifecycle has changed.
+    event transactionLifeCycleChanged (
+        PaymentLifeCycle newState,
+        address indexed customer,
+        address indexed locksmtih
+    );
+
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
     mapping (address=>mapping(address=>string)) REKs;
 
@@ -58,60 +65,69 @@ contract Reputation {
     // Requesting Address -> Public Key
     mapping (address=>bytes) publicKeys;
 
-    function getCurrentREKRequestState(address targetAddress) public view returns (PaymentLifeCycle) {
-        return requestForREKStage[targetAddress][msg.sender];
+    function getCurrentREKRequestState(address locksmith) public view returns (PaymentLifeCycle) {
+        return requestForREKStage[locksmith][msg.sender];
     }
+
     function getPublicKey(address targetAddress) public view returns (bytes memory) {
         return publicKeys[targetAddress];
     }
 
     /* 
+        TODO(@ckartik): Vunreability.
+        Need to somehow block an attack where users overload the list with requests.
+    */
+    function makeRequestForTrustRelationsDecryption(address locksmith, bytes memory publicKey) payable public {
+        // Require user at this stage to not be in requested/responded state.
+        require(requestForREKStage[locksmith][msg.sender] == PaymentLifeCycle.UNSET_OR_CLEARED, "ALREADY_REQUESTED");
+        require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
+        requestQueue[locksmith].push(msg.sender);
+        publicKeys[msg.sender] = publicKey;
+
+        // Note(@ckartik): Always change lifecycle state after all other state changes in function.
+        requestForREKStage[locksmith][msg.sender] = PaymentLifeCycle.REQUESTED;
+
+        emit transactionLifeCycleChanged(
+            PaymentLifeCycle.REQUESTED,
+            msg.sender,
+            locksmith
+        );
+    }
+
+
+    /* 
         Get the re-encryption key.
         Requires state transition to be at the point where a key exists in the smart-contract.
     */
-    function getReKey(address owner) public view returns (bytes memory r1, bytes memory r2,bytes memory r3) {
-        require(requestForREKStage[owner][msg.sender] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
+    function getReKey(address locksmith) public view returns (bytes memory r1, bytes memory r2,bytes memory r3) {
+        require(requestForREKStage[locksmith][msg.sender] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
 
-        (r1,r2,r3) = abi.decode(rekPerUser[owner][msg.sender], (bytes,bytes,bytes));
+        (r1,r2,r3) = abi.decode(rekPerUser[locksmith][msg.sender], (bytes,bytes,bytes));
     }
 
     /*
         Function invoked by the owner to post a key - requires passed requesting address to have made payment and requested keys.
     */
-    function postReKey(address requestingAddress, bytes memory r1, bytes memory r2, bytes memory r3) public {
-        require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.REQUESTED, "INVALID_STATE_TRANSITION");
+    function postReKey(address customer, bytes memory r1, bytes memory r2, bytes memory r3) public {
+        require(requestForREKStage[msg.sender][customer] == PaymentLifeCycle.REQUESTED, "INVALID_STATE_TRANSITION");
         
-        rekPerUser[msg.sender][requestingAddress] = abi.encode(r1,r2,r3);
+        rekPerUser[msg.sender][customer] = abi.encode(r1,r2,r3);
 
-        requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.RESPONDED;
+        requestForREKStage[msg.sender][customer] = PaymentLifeCycle.RESPONDED;
     }
    
 
     /* 
         This method will clear funds to Alice once the exchange has been completed.
     */
-    function closeFunds(address requestingAddress) payable public {
-        require(requestForREKStage[msg.sender][requestingAddress] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
+    function clearFunds(address customer) payable public {
+        require(requestForREKStage[msg.sender][customer] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
 
         payable(msg.sender).transfer(paymentValue);
         console.log("Paying out funds");
-        requestForREKStage[msg.sender][requestingAddress] = PaymentLifeCycle.UNSET_OR_CLEARED;
+        requestForREKStage[msg.sender][customer] = PaymentLifeCycle.UNSET_OR_CLEARED;
     }
     
-    /* 
-        TODO(@ckartik): Vunreability.
-        Need to somehow block an attack where users overload the list with requests.
-    */
-    function makeRequestForTrustRelationsDecryption(address targetAddress, bytes memory publicKey) payable public {
-        // Require user at this stage to not be in requested/responded state.
-        require(requestForREKStage[targetAddress][msg.sender] == PaymentLifeCycle.UNSET_OR_CLEARED, "ALREADY_REQUESTED");
-        require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
-        requestQueue[targetAddress].push(msg.sender);
-        requestForREKStage[targetAddress][msg.sender] = PaymentLifeCycle.REQUESTED;
-        publicKeys[msg.sender] = publicKey;
-    }
-
-
     /*
         Free Look up of CID info.
             - If un-encrypted, the data will be accessible without requirement of payment.
