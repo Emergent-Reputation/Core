@@ -61,7 +61,6 @@ contract Reputation {
     mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
     // Owner of CID -> Requesting Address -> REK
     mapping (address=>mapping(address=>bytes)) rekPerUser;
-
     // Requesting Address -> Public Key
     mapping (address=>bytes) publicKeys;
 
@@ -171,11 +170,4 @@ contract Reputation {
         console.log("Sender %s has been removed from the system", msg.sender);
     }
     
-    function postREK(string memory targetAddress) public view {
-        // bytes memory mapkey = abi.toAss;
-        // string postingAddress = Strings.toString(uint256(uint160(msg.sender)));
-
-        console.log(string(abi.encode(msg.sender, targetAddress)));
-        
-    }
 }
