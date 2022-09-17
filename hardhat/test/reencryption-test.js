@@ -12,6 +12,12 @@ const tag = Buffer.from('TAG');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
 
+const LifeCycleEnum = {
+    UNSET_OR_CLEARED: 0,
+    REQUESTED: 1,
+    RESPONDED: 2
+}
+
 describe.only('re-encrypt', function () {
     it("Should do re-encryption with new store and retrieve mechanism", async () => {
         // Constructs smart contract
@@ -58,21 +64,32 @@ describe.only('re-encrypt', function () {
         /* 
             Bob connects to request the data from Alice and pays dues.
         */
-        await reputation.connect(bob).makeRequestForTrustRelationsDecryption(aliceWallet.address, bobPK, {
+        const requestFromBob = await reputation.connect(bob).makeRequestForTrustRelationsDecryption(aliceWallet.address, bobPK, {
             value: ethers.utils.parseUnits("1000000", "gwei")
         });
+        const requestFromBobReciept = await requestFromBob.wait()
+        expect(requestFromBobReciept.events[0].args.newState).to.equal(LifeCycleEnum.REQUESTED);
+        expect(requestFromBobReciept.events[0].args.customer).to.equal(bob.address.toString());
+        expect(requestFromBobReciept.events[0].args.locksmtih).to.equal(alice.address.toString());
+
+        /*
+            Check lifecycle getter TODO(@ckartik): May want to remove this as redundant
+        */
         const lifecycleState = await reputation.connect(bob).getCurrentREKRequestState(aliceWallet.address);
-        
-        expect(lifecycleState).to.equal(1)
+        expect(lifecycleState).to.equal(LifeCycleEnum.REQUESTED)
     
         /* 
             Alice recieves Bobs request and attempts to retrieve public key to create Re-encryption keys.
         */ 
         const bobsPubKey = await reputation.connect(alice).getPublicKey(bob.address);
-        bobsPKFromContract = Buffer.from(bobsPubKey.substring(2),'hex')
+        const bobsPKFromContract = Buffer.from(bobsPubKey.substring(2),'hex')
         const bobREK = alicePRE.generateReKey(bobsPKFromContract, tag);
-        await reputation.connect(alice).postReKey(bob.address, bobREK.R1, bobREK.R2, bobREK.R3)
-
+        const reKeyPostedTxn = await reputation.connect(alice).postReKey(bob.address, bobREK.R1, bobREK.R2, bobREK.R3);
+        
+        const reKeyPostedTxnReciept = await reKeyPostedTxn.wait();
+        expect(reKeyPostedTxnReciept.events[0].args.newState).to.equal(LifeCycleEnum.RESPONDED);
+        expect(reKeyPostedTxnReciept.events[0].args.customer).to.equal(bob.address.toString());
+        expect(reKeyPostedTxnReciept.events[0].args.locksmtih).to.equal(alice.address.toString());
         /*
             Bob takes the data Re-Encryption keys from the contract
         */
@@ -86,7 +103,16 @@ describe.only('re-encrypt', function () {
         /* 
             Alice closes out funds.
         */
-        await reputation.connect(alice).closeFunds(bob.address);
+        const fundsCleared = await reputation.connect(alice).clearFunds(bob.address);
+        const fundsClearedReciept = await fundsCleared.wait();
+        expect(fundsClearedReciept.events[0].args.newState).to.equal(LifeCycleEnum.UNSET_OR_CLEARED);
+        expect(fundsClearedReciept.events[0].args.customer).to.equal(bob.address.toString());
+        expect(fundsClearedReciept.events[0].args.locksmtih).to.equal(alice.address.toString());
+
+
+        /*
+            Testing to make sure funds are being cleared properly
+        */
         const b2 = await alice.getBalance();
         const aliceIncome = b2.sub(b1);
         const rewardMax = ethers.utils.parseUnits("1000000", "gwei");
