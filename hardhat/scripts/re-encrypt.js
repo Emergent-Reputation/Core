@@ -1,16 +1,48 @@
+const { ethers } = require("hardhat");
 
-var kp_A = Proxy.generate_key_pair();
-var sk_A = Proxy.to_hex(kp_A.get_private_key().to_bytes());
-var pk_A = Proxy.to_hex(kp_A.get_public_key().to_bytes());
 
-var kp_B = Proxy.generate_key_pair();
-var sk_B = Proxy.to_hex(kp_B.get_private_key().to_bytes());
-var pk_B = Proxy.to_hex(kp_B.get_public_key().to_bytes());
+fs = require('fs')
+const { Readable } = require('stream')
+const { CID } = require('multiformats/cid')
+const Block = require('multiformats/block')
 
-let obj = PRE.encryptData(pk_A, "test data")
-console.log(obj)
-let rk = PRE.generateReEncrytionKey(sk_A, pk_B);
-PRE.reEncryption(rk, obj)
+const { sha256 } = require('multiformats/hashes/sha2')
+const dagCBOR = require('@ipld/dag-cbor')
+const { curve } = require('@futuretense/curve25519-elliptic');
 
-let decryptData = PRE.decryptData(sk_B, obj)
-console.log(decryptData)
+
+// CAR utilities, see https://github.com/ipld/js-car for more info
+const { CarWriter } = require( '@ipld/car/writer')
+const { CarReader } = require( '@ipld/car/reader');
+const { PRE } = require("@futuretense/proxy-reencryption");
+const {EmergentReputation} = require("../../sdk/emergent-reputation");
+
+(async()=>{
+
+
+  const Reputation = await ethers.getContractFactory("Reputation");
+  const reputation = await Reputation.deploy();
+  await reputation.deployed();
+
+  console.log(reputation.address);
+
+  const aliceWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
+  await network.provider.send("hardhat_setBalance", [
+      aliceWallet.address,
+      "0xffffffffffffffffffffffffffff",
+  ]);
+  const adr = await reputation.connect(aliceWallet).getAddress();
+  console.log(aliceWallet.address);
+  const ERAdapter = await EmergentReputation.create(aliceWallet.privateKey, reputation.address);
+
+  console.log( await ERAdapter.getAddress());
+  const payload = await ERAdapter.encrypt('kartik', 'name');
+
+  const cid =  await EmergentReputation.upload_data(payload)
+  console.log(cid)
+  const newPayload = await EmergentReputation.read_data(cid)
+  console.log( newPayload)
+  const plaintext = await ERAdapter.decrypt(newPayload, newPayload.tag);
+  console.log(plaintext.toString());
+
+})();

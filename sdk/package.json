@@ -1,0 +1,31 @@
+{
+  "name": "sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "emergent-reputation.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@alch/alchemy-web3": "^1.2.5",
+    "@futuretense/curve25519-elliptic": "^1.0.0",
+    "@futuretense/proxy-reencryption": "^2.0.0",
+    "@ipld/car": "^4.0.0",
+    "@ipld/dag-cbor": "^7.0.0",
+    "@ipld/dag-json": "^8.0.1",
+    "@openzeppelin/contracts": "^4.7.3",
+    "compile": "^0.0.2",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "fs": "^0.0.1-security",
+    "hardhat": "^2.11.2",
+    "ipfs-http-client": "^56.0.1",
+    "multiformats": "^9.6.4",
+    "recrypt-js": "^1.1.2",
+    "stream": "^0.0.2",
+    "web3": "^1.7.1"
+  }
+}
