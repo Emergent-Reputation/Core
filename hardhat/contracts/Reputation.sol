@@ -94,7 +94,6 @@ contract Reputation {
         );
     }
 
-
     /* 
         Get the re-encryption key.
         Requires state transition to be at the point where a key exists in the smart-contract.
@@ -114,6 +113,11 @@ contract Reputation {
         rekPerUser[msg.sender][customer] = abi.encode(r1,r2,r3);
 
         requestForREKStage[msg.sender][customer] = PaymentLifeCycle.RESPONDED;
+        emit transactionLifeCycleChanged(
+            PaymentLifeCycle.RESPONDED,
+            msg.sender,
+            customer
+        );
     }
    
 
@@ -124,8 +128,12 @@ contract Reputation {
         require(requestForREKStage[msg.sender][customer] == PaymentLifeCycle.RESPONDED, "INVALID_STATE_TRANSITION");
 
         payable(msg.sender).transfer(paymentValue);
-        console.log("Paying out funds");
         requestForREKStage[msg.sender][customer] = PaymentLifeCycle.UNSET_OR_CLEARED;
+        emit transactionLifeCycleChanged(
+            PaymentLifeCycle.CLEARED,
+            msg.sender,
+            customer
+        );
     }
     
     /*

@@ -71,8 +71,10 @@ describe.only('re-encrypt', function () {
         const bobsPubKey = await reputation.connect(alice).getPublicKey(bob.address);
         bobsPKFromContract = Buffer.from(bobsPubKey.substring(2),'hex')
         const bobREK = alicePRE.generateReKey(bobsPKFromContract, tag);
-        await reputation.connect(alice).postReKey(bob.address, bobREK.R1, bobREK.R2, bobREK.R3)
+        const reKeyPostedTxn = await reputation.connect(alice).postReKey(bob.address, bobREK.R1, bobREK.R2, bobREK.R3);
+        const reKeyPostedTxnReciept = await reKeyPostedTxn.wait();
 
+        // console.log(reKeyPostedTxnReciept.events[0]);
         /*
             Bob takes the data Re-Encryption keys from the contract
         */
