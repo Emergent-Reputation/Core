@@ -36,7 +36,7 @@ contract Reputation {
 
         TODO(@ckartik): Need a way to reset this lifecycle back to intial state.
     */
-    enum PaymentLifeCycle{UNSET_OR_CLEARED,REQUESTED,RESPONDED,CLEARED}
+    enum PaymentLifeCycle{UNSET_OR_CLEARED,REQUESTED,RESPONDED}
 
     // This event will be emited to notify that a transaction lifecycle has changed.
     event transactionLifeCycleChanged (
@@ -115,8 +115,8 @@ contract Reputation {
         requestForREKStage[msg.sender][customer] = PaymentLifeCycle.RESPONDED;
         emit transactionLifeCycleChanged(
             PaymentLifeCycle.RESPONDED,
-            msg.sender,
-            customer
+            customer,
+            msg.sender
         );
     }
    
@@ -130,9 +130,9 @@ contract Reputation {
         payable(msg.sender).transfer(paymentValue);
         requestForREKStage[msg.sender][customer] = PaymentLifeCycle.UNSET_OR_CLEARED;
         emit transactionLifeCycleChanged(
-            PaymentLifeCycle.CLEARED,
-            msg.sender,
-            customer
+            PaymentLifeCycle.UNSET_OR_CLEARED,
+            customer,
+            msg.sender
         );
     }
     
