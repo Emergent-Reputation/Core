@@ -49,6 +49,7 @@ contract Reputation {
     mapping(address=>address[]) requestQueue;
     mapping(address=>uint256) handled;
 
+    // TODO(@ckartik): Ensure events are logged on each small change.
     // Owner of CID => Requesting Address -> Stage
     mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
     // Owner of CID -> Requesting Address -> REK
