@@ -130,7 +130,7 @@ class EmergentReputation {
   }
   
   async approveRequest() {
-    
+
   }
 
 }

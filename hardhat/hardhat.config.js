@@ -20,6 +20,9 @@ module.exports = {
       accounts: [process.env.PRIV_KEY1, process.env.PRIV_KEY2],
     },
   },
+  mocha: {
+    timeout: 100000000
+  },
 };
 
 

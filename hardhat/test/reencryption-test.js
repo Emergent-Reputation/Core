@@ -18,7 +18,7 @@ const LifeCycleEnum = {
     RESPONDED: 2
 }
 
-describe.only('re-encrypt', function () {
+describe('re-encrypt', function () {
     it("Should do re-encryption with new store and retrieve mechanism", async () => {
         // Constructs smart contract
         const Reputation = await ethers.getContractFactory("Reputation");
@@ -132,27 +132,36 @@ describe.only('re-encrypt', function () {
         expect(newPlaintext.toString()).to.equal(data.toString());
         
     }),
-     it("Should do re-encryption with real accounts", async () => {
+    // it.only("Wallet", async () => {
+    //     const aliceWallet = await (new ethers.Wallet(process.env.PRIV_KEY1)).connect(ethers.provider);
+    //     const bobWallet = await (new ethers.Wallet(process.env.PRIV_KEY2)).connect(ethers.provider);
+    //     console.log(aliceWallet);
+    // })
+
+    it.only("Should do re-encryption with real accounts", async () => {
         // Constructs smart contract
         const Reputation = await ethers.getContractFactory("Reputation");
         const reputationDeployed = await Reputation.deploy();
+        console.log("Deploying contract...")
         await reputationDeployed.deployed();
-        
+        console.log("Contract deployed at %s", reputationDeployed.address)
+
         // Faking retriveal of self-deployed contract to ensure effectiveness of passed in variant
         const reputation = await ethers.getContractAt("Reputation", reputationDeployed.address);
         
         // Eth Wallet Creation
-        const aliceWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
-        await network.provider.send("hardhat_setBalance", [
-            aliceWallet.address,
-            "0xffffffffffffffffffffffffffff",
-        ]);
+
+        const aliceWallet = await (new ethers.Wallet(process.env.PRIV_KEY1)).connect(ethers.provider);
+        // await network.provider.send("hardhat_setBalance", [
+        //     aliceWallet.address,
+        //     "0xffffffffffffffffffffffffffff",
+        // ]);
         
-        const bobWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
-        await network.provider.send("hardhat_setBalance", [
-            bobWallet.address,
-            "0xffffffffffffffffffffffffffff",
-        ]);
+        const bobWallet = await (new ethers.Wallet(process.env.PRIV_KEY2)).connect(ethers.provider);
+        // await network.provider.send("hardhat_setBalance", [
+        //     bobWallet.address,
+        //     "0xffffffffffffffffffffffffffff",
+        // ]);
         
         // Get cruve scalar private keys.
         const aliceKeyScalar = curve.scalarFromBuffer(Buffer.from(aliceWallet.privateKey.substring(2), 'hex'));
