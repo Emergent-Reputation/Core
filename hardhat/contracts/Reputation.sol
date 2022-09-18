@@ -11,14 +11,9 @@ contract Reputation {
     uint paymentValue;
 
     constructor() {
-        tag = abi.encode("tag");
         paymentValue = 10**15;
     }
     
-    function getTag() public view returns (bytes memory) {
-        return tag;
-    }
-
     /*
         The payment lifecycle of a proposal flow steps through 3 (+1 implict) phases.
 
