@@ -29,7 +29,7 @@ task("read-list", "Reads list of deployed contract")
   .setAction(async (taskArgs) =>
   {
     const [signer] = await hre.ethers.getSigners();
-
+    console.log(signer.address)
     const Reputation = await hre.ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
     await reputation.deployed();
@@ -50,6 +50,13 @@ task("read-list", "Reads list of deployed contract")
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
+
 module.exports = {
   solidity: "0.8.4",
+  networks: {
+    rinkeby:{
+      url: `https://rinkeby.infura.io/v3/${process.env.API_KEY}`,
+      accounts: [process.env.PRIV_KEY1, process.env.PRIV_KEY2],
+    },
+  },
 };
