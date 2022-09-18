@@ -7,6 +7,22 @@ const { task } = require("hardhat/config");
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config();
 
+module.exports = {
+  solidity: "0.8.4",
+  defaultNetwork: "ropsten",
+  networks: {
+    ropsten: {
+      url: `https://ropsten.infura.io/v3/${process.env.API_KEY}`,
+      accounts: [process.env.PRIV_KEY1, process.env.PRIV_KEY2],
+    },
+    rinkeby:{
+      url: `https://rinkeby.infura.io/v3/${process.env.API_KEY}`,
+      accounts: [process.env.PRIV_KEY1, process.env.PRIV_KEY2],
+    },
+  },
+};
+
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -38,6 +54,10 @@ task("read-list", "Reads list of deployed contract")
     
   })
 
+  task("check-provider", "Tells the current provider").setAction(async () => {
+    console.log(await ethers.provider.getNetwork());
+  })
+
 // task("add-trusted", "Adds the target account to the trusted list.")
 //   .addParam("personal-account", "The account owner of the trust-list that will be updated")
 //   .addParam("target-account", "The account being added to the trust-list")
@@ -50,13 +70,3 @@ task("read-list", "Reads list of deployed contract")
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-
-module.exports = {
-  solidity: "0.8.4",
-  networks: {
-    rinkeby:{
-      url: `https://rinkeby.infura.io/v3/${process.env.API_KEY}`,
-      accounts: [process.env.PRIV_KEY1, process.env.PRIV_KEY2],
-    },
-  },
-};
