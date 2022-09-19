@@ -18,7 +18,7 @@
     "@ipld/dag-json": "^8.0.1",
     "@openzeppelin/contracts": "^4.7.3",
     "compile": "^0.0.2",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.0.2",
     "express": "^4.17.3",
     "ipfs-http-client": "^56.0.1",
     "multiformats": "^9.6.4",

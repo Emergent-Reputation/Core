@@ -16,6 +16,7 @@ async function main() {
   // We get the contract to deploy
   const Reptuation = await hre.ethers.getContractFactory("Reputation");
   const reputation = await Reptuation.deploy();
+  console.log(ethers.getDefaultProvider().network);
 
   await reputation.deployed();
 
