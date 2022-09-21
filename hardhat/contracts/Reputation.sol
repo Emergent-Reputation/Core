@@ -31,11 +31,18 @@ contract Reputation {
 
         TODO(@ckartik): Need a way to reset this lifecycle back to intial state.
     */
-    enum PaymentLifeCycle{UNSET_OR_CLEARED,REQUESTED,RESPONDED}
+    enum PaymentLifeCycle {UNSET_OR_CLEARED,REQUESTED,RESPONDED}
+    enum DataPrivacyTier {T0, T1, T2, T3}
 
     // This event will be emited to notify that a transaction lifecycle has changed.
     event transactionLifeCycleChanged (
         PaymentLifeCycle newState,
+        address indexed customer,
+        address indexed locksmtih
+    );
+
+    event tierRequested (
+        DataPrivacyTier tier,
         address indexed customer,
         address indexed locksmtih
     );
@@ -51,13 +58,18 @@ contract Reputation {
     mapping(address=>address[]) requestQueue;
     mapping(address=>uint256) handled;
 
-    // TODO(@ckartik): Ensure events are logged on each small change.
+    // Owner of CID -> requesting adr ->
+    mapping (address=>mapping(address=>DataPrivacyTier)) requestedTier;
     // Owner of CID => Requesting Address -> Stage
     mapping (address=>mapping(address=>PaymentLifeCycle)) requestForREKStage;
     // Owner of CID -> Requesting Address -> REK
     mapping (address=>mapping(address=>bytes)) rekPerUser;
     // Requesting Address -> Public Key
     mapping (address=>bytes) publicKeys;
+
+    function getRequestedTier(address customer) public view returns (DataPrivacyTier) {
+        return requestedTier[msg.sender][customer];
+    }
 
     function getCurrentREKRequestState(address locksmith) public view returns (PaymentLifeCycle) {
         return requestForREKStage[locksmith][msg.sender];
@@ -71,12 +83,13 @@ contract Reputation {
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
     */
-    function makeRequestForTrustRelationsDecryption(address locksmith, bytes memory publicKey) payable public {
+    function makeRequestForTrustRelationsDecryption(address locksmith, bytes memory publicKey, DataPrivacyTier tier) payable public {
         // Require user at this stage to not be in requested/responded state.
         require(requestForREKStage[locksmith][msg.sender] == PaymentLifeCycle.UNSET_OR_CLEARED, "ALREADY_REQUESTED");
         require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
         requestQueue[locksmith].push(msg.sender);
         publicKeys[msg.sender] = publicKey;
+        requestedTier[locksmith][msg.sender] = tier;
 
         // Note(@ckartik): Always change lifecycle state after all other state changes in function.
         requestForREKStage[locksmith][msg.sender] = PaymentLifeCycle.REQUESTED;
@@ -146,7 +159,7 @@ contract Reputation {
 
     function getCID() public view returns (string memory) {
         console.log("SMART CONTRACT: GETCID %s ", msg.sender);
-        console.log("Stored CID is %s", Trusted[msg.sender]);
+        console.log("Stored CID is the following %s", Trusted[msg.sender]);
         return Trusted[msg.sender];
     }
 

@@ -16,6 +16,7 @@ const { CarWriter } = require( '@ipld/car/writer')
 const { CarReader } = require( '@ipld/car/reader');
 const { PRE } = require("@futuretense/proxy-reencryption");
 const {EmergentReputation} = require("../../sdk/emergent-reputation");
+const { assert } = require("console");
 
 (async()=>{
 
@@ -26,15 +27,18 @@ const {EmergentReputation} = require("../../sdk/emergent-reputation");
 
   console.log(reputation.address);
 
-  const aliceWallet = await ethers.Wallet.createRandom().connect(ethers.provider);
+  const aliceWallet2 = await ethers.Wallet.createRandom().connect(ethers.provider);
+  const aliceWallet = new ethers.Wallet(process.env.PRIV_KEY1, ethers.provider)
   await network.provider.send("hardhat_setBalance", [
       aliceWallet.address,
       "0xffffffffffffffffffffffffffff",
   ]);
   const adr = await reputation.connect(aliceWallet).getAddress();
   console.log(aliceWallet.address);
-  const ERAdapter = await EmergentReputation.create(aliceWallet.privateKey, reputation.address);
-
+  const ERAdapter = await EmergentReputation.create(process.env.PRIV_KEY1, reputation.address);
+  assert(process.env.PRIV_KEY1 == aliceWallet.privateKey)
+  console.log(process.env.PRIV_KEY1)
+  console.log(aliceWallet.privateKey)
   console.log( await ERAdapter.getAddress());
   const payload = await ERAdapter.encrypt('kartik', 'name');
 
