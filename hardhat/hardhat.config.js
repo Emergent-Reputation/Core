@@ -9,7 +9,7 @@ require('dotenv').config();
 
 module.exports = {
   solidity: "0.8.4",
-  // defaultNetwork: "homestead",
+  defaultNetwork: "ropsten",
   networks: {
     ropsten: {
       url: `https://ropsten.infura.io/v3/${process.env.API_KEY}`,

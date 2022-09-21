@@ -19,7 +19,7 @@ const LifeCycleEnum = {
     REQUESTED: 1,
     RESPONDED: 2
 }
-const localRun = true
+const localRun = false
 
 describe.only('re-encrypt', function () {
     it("Should test to see if adding trust relations works in module", async () => {
@@ -66,16 +66,13 @@ describe.only('re-encrypt', function () {
 
         // Eth Wallet Creation
         const aliceWallet = await (new ethers.Wallet(process.env.PRIV_KEY1)).connect(ethers.provider);
+        const bobWallet = await (new ethers.Wallet(process.env.PRIV_KEY2)).connect(ethers.provider);
+
         if (localRun) {
             await network.provider.send("hardhat_setBalance", [
                 aliceWallet.address,
                 "0xffffffffffffffffffffffffffff",
             ]);
-        }
-        
-        
-        const bobWallet = await (new ethers.Wallet(process.env.PRIV_KEY2)).connect(ethers.provider);
-        if (localRun) {
             await network.provider.send("hardhat_setBalance", [
                 bobWallet.address,
                 "0xffffffffffffffffffffffffffff",
