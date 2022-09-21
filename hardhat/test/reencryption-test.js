@@ -42,8 +42,6 @@ describe.only('re-encrypt', function () {
             ]);
         }
         
-        const bobPubKey = await ERAdapterBob.getPublicKey()
-        // console.log(bobPubKey)
         const newCID = await ERAdapterAlice.addTrustRelation(await ERAdapterBob.getAddress(), SecurityLevels.T0)
         const cidOnNetwork = await ERAdapterAlice.getCID()
         expect(newCID.toString()).to.equal(cidOnNetwork);

@@ -103,7 +103,6 @@ class EmergentReputation {
   //
   // We utilize a model similar to BLP (Bell–LaPadula model) model constrainted to a view only prespective for re-encrpytion keys.
   async addTrustRelation(newTrustedAddress, securityLevel = SecurityLevels.T0){
-    console.log("I got called")
     // Retrive data from IPLD or initialize.
     const connectedContract = await this.contract.connect(this.wallet)
     
@@ -134,7 +133,6 @@ class EmergentReputation {
     }
 
     // Update persistent data stores
-    console.log(payload)
     const newCID = await EmergentReputation.upload_data(payload);
     // await this.contract.connect(this.wallet).makeRequestForTrustRelationsDecryption()
     await connectedContract.updateTrustRelations(newCID.toString());
