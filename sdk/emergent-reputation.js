@@ -47,6 +47,7 @@ class EmergentReputation {
       payload: <bytes> -> Only decode if unencrypted, or decrypt and decode.
     }
   */
+ // TODO(@ckartik): Start to store the data on IPFS.
   static async upload_data(value){
       const payload = await Block.encode({
         value: value,

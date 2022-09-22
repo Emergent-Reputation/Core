@@ -22,7 +22,7 @@ const LifeCycleEnum = {
 const localRun = false
 const deployNew = false
 
-const contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
+var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
 
 describe.only('re-encrypt', function () {
     it("Should test to see if adding trust relations works in module", async () => {
@@ -32,6 +32,7 @@ describe.only('re-encrypt', function () {
             console.log("Deploying contract...")
             await reputationDeployed.deployed();
             console.log("Contract deployed at %s", reputationDeployed.address)
+            contractAddress = reputationDeployed.address
         }
         
         // Create adapters for Alice and Bob
@@ -47,7 +48,7 @@ describe.only('re-encrypt', function () {
                 "0xffffffffffffffffffffffffffff",
             ]);
         }
-        
+
         const newCID = await ERAdapterAlice.addTrustRelation(await ERAdapterBob.getAddress(), SecurityLevels.T0)
         const cidOnNetwork = await ERAdapterAlice.getCID()
         expect(newCID.toString()).to.equal(cidOnNetwork);
