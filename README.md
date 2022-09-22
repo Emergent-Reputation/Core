@@ -7,6 +7,10 @@
 4. `$ npx hardhat run scripts/deploy`
 5. `$ npx hardhat run scripts/server` # TODO
 
+## Deploying new contract:
+ - run `$ npx hardhat deploy`
+ - Copy the address value into the contract address field in the tests
+
 ## New Prespective
 1. Get rid of signature lists for out-signatures
 2. Get rid of all signatures at the CID payload layer.

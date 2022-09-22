@@ -20,17 +20,23 @@ const LifeCycleEnum = {
     RESPONDED: 2
 }
 const localRun = false
+const deployNew = false
+
+const contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
 
 describe.only('re-encrypt', function () {
     it("Should test to see if adding trust relations works in module", async () => {
-        const Reputation = await ethers.getContractFactory("Reputation");
-        const reputationDeployed = await Reputation.deploy();
-        console.log("Deploying contract...")
-        await reputationDeployed.deployed();
-        console.log("Contract deployed at %s", reputationDeployed.address)
+        if (deployNew) {
+            const Reputation = await ethers.getContractFactory("Reputation");
+            const reputationDeployed = await Reputation.deploy();
+            console.log("Deploying contract...")
+            await reputationDeployed.deployed();
+            console.log("Contract deployed at %s", reputationDeployed.address)
+        }
+        
         // Create adapters for Alice and Bob
-        const ERAdapterAlice = await EmergentReputation.create(process.env.PRIV_KEY1, reputationDeployed.address)
-        const ERAdapterBob = await EmergentReputation.create(process.env.PRIV_KEY2, reputationDeployed.address)
+        const ERAdapterAlice = await EmergentReputation.create(process.env.PRIV_KEY1, contractAddress)
+        const ERAdapterBob = await EmergentReputation.create(process.env.PRIV_KEY2, contractAddress)
         if (localRun) {
             await network.provider.send("hardhat_setBalance", [
                 ERAdapterAlice.getAddress(),
@@ -52,15 +58,17 @@ describe.only('re-encrypt', function () {
     })
     it("Should do re-encryption with real accounts", async () => {
         // Constructs smart contract
-        const Reputation = await ethers.getContractFactory("Reputation");
-        const reputationDeployed = await Reputation.deploy();
-        console.log("Deploying contract...")
-        await reputationDeployed.deployed();
-        console.log("Contract deployed at %s", reputationDeployed.address)
+        if (deployNew) {
+            const Reputation = await ethers.getContractFactory("Reputation");
+            const reputationDeployed = await Reputation.deploy();
+            console.log("Deploying contract...")
+            await reputationDeployed.deployed();
+            console.log("Contract deployed at %s", reputationDeployed.address)
+            const reputation = await ethers.getContractAt("Reputation", reputationDeployed.address);
+        }
+        
 
-        // Faking retriveal of self-deployed contract to ensure effectiveness of passed in variant
-        const reputation = await ethers.getContractAt("Reputation", reputationDeployed.address);
-
+        const reputation = await ethers.getContractAt("Reputation", contractAddress)
 
         // Eth Wallet Creation
         const aliceWallet = await (new ethers.Wallet(process.env.PRIV_KEY1)).connect(ethers.provider);

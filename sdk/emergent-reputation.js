@@ -135,8 +135,8 @@ class EmergentReputation {
     // Update persistent data stores
     const newCID = await EmergentReputation.upload_data(payload);
     // await this.contract.connect(this.wallet).makeRequestForTrustRelationsDecryption()
-    await connectedContract.updateTrustRelations(newCID.toString());
-
+    const tx = await connectedContract.updateTrustRelations(newCID.toString());
+    await tx.wait()
     return newCID
   }
 
