@@ -36,7 +36,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-task("deploy-contract", "Deploys the contract and prints the address")
+task("deploy", "Deploys the contract and prints the address")
 .setAction(async () => {
     const Reputation = await hre.ethers.getContractFactory("Reputation");
     const reputation = await Reputation.deploy();
