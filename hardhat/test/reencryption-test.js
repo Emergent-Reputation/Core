@@ -20,7 +20,7 @@ const LifeCycleEnum = {
     RESPONDED: 2
 }
 const localRun = false
-const deployNew = false
+const deployNew = true
 
 var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
 
@@ -65,7 +65,7 @@ describe.only('re-encrypt', function () {
             console.log("Deploying contract...")
             await reputationDeployed.deployed();
             console.log("Contract deployed at %s", reputationDeployed.address)
-            const reputation = await ethers.getContractAt("Reputation", reputationDeployed.address);
+            contractAddress = reputationDeployed.address
         }
         
 
