@@ -38,13 +38,13 @@ contract Reputation {
     event transactionLifeCycleChanged (
         PaymentLifeCycle newState,
         address indexed customer,
-        address indexed locksmtih
+        address indexed locksmith
     );
 
     event tierRequested (
         DataPrivacyTier tier,
         address indexed customer,
-        address indexed locksmtih
+        address indexed locksmith
     );
 
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
@@ -77,6 +77,10 @@ contract Reputation {
 
     function getPublicKey(address targetAddress) public view returns (bytes memory) {
         return publicKeys[targetAddress];
+    }
+
+    function getCustomerList() public view returns (address[] memory) {
+        return requestQueue[msg.sender];
     }
 
     /* 

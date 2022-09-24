@@ -92,12 +92,18 @@ class EmergentReputation {
     return await this.PRECore.selfDecrypt(value, tag);
   }
   
-  async decrypto(value, tag){}
 
   async getCID() {
     const connectedContract = await this.contract.connect(this.wallet)
     return await connectedContract.getCID();
   }
+
+  async getCustomers() {
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    return await connectedContract.getCustomerList();
+  }
+
   // addTrustRelation adds the [newTrustedAddress] to the adjacency list index by the ownwer node.
   // The securityLevel dictates the minimum level of security access needed to access the list from [T0, T1, T2, T3].
   // T3 being the most secured data, T0 being unencrypted.
@@ -141,6 +147,29 @@ class EmergentReputation {
     return newCID
   }
 
+  // getTrustRelations retrives the payload stored in ipld for the owner with address [locksmithAddress]. 
+  // The data is retrieved as is from IPLD and returned.
+  async getTrustRelations(locksmithAddress) {
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    const cid =  await connectedContract.getCIDFor(locksmithAddress);
+    return await EmergentReputation.read_data(cid)
+  }
+
+  // requestDecryption queues a request on chain to ask the locksmith to forge re-ecryption keys for the data in question.
+  // returns a reciept of transaction
+  async requestDecryption(locksmithAddress, securityLevel) {
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    const tx = await connectedContract.makeRequestForTrustRelationsDecryption(locksmithAddress, this.pubKey.toBuffer(), ethers.BigNumber.from(securityLevel), {
+      value: ethers.utils.parseUnits("1000000", "gwei")
+    });
+
+    return await tx.wait();
+  }
+
+  // TODO(@ckartik): Implement this
+  // removeTrustRelation removes trust relations from a users stored and encrypted data.
   async removeTrustRelation() {
 
   }
@@ -158,14 +187,11 @@ class EmergentReputation {
 
 }
 
-function foo() {
-  return 5;
-}
-
 module.exports = {
   EmergentReputation,
   SecurityLevels
 }
+
 /*
 // TODO(@ckartik): Trancompiler - webpack 5 or wheet
   wheat is fast

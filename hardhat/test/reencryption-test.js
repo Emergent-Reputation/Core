@@ -19,13 +19,13 @@ const LifeCycleEnum = {
     REQUESTED: 1,
     RESPONDED: 2
 }
-const localRun = false
+const localRun = true
 const deployNew = true
 
 var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
 
 describe.only('re-encrypt', function () {
-    it("Should test to see if adding trust relations works in module", async () => {
+    it.only("Testing using npm module", async () => {
         if (deployNew) {
             const Reputation = await ethers.getContractFactory("Reputation");
             const reputationDeployed = await Reputation.deploy();
@@ -36,25 +36,35 @@ describe.only('re-encrypt', function () {
         }
         
         // Create adapters for Alice and Bob
-        const ERAdapterAlice = await EmergentReputation.create(process.env.PRIV_KEY1, contractAddress)
-        const ERAdapterBob = await EmergentReputation.create(process.env.PRIV_KEY2, contractAddress)
+        const ERAdapterLocksmith = await EmergentReputation.create(process.env.PRIV_KEY1, contractAddress)
+        const ERAdapterCustomer = await EmergentReputation.create(process.env.PRIV_KEY2, contractAddress)
         if (localRun) {
             await network.provider.send("hardhat_setBalance", [
-                ERAdapterAlice.getAddress(),
+                ERAdapterLocksmith.getAddress(),
                 "0xffffffffffffffffffffffffffff",
             ]);
             await network.provider.send("hardhat_setBalance", [
-                ERAdapterBob.getAddress(),
+                ERAdapterCustomer.getAddress(),
                 "0xffffffffffffffffffffffffffff",
             ]);
         }
 
-        const newCID = await ERAdapterAlice.addTrustRelation(await ERAdapterBob.getAddress(), SecurityLevels.T0)
-        const cidOnNetwork = await ERAdapterAlice.getCID()
-        expect(newCID.toString()).to.equal(cidOnNetwork);
+        const newCID = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
+        const newCID2 = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
 
-        const payload = await EmergentReputation.read_data(cidOnNetwork)
-        expect(payload.T0[0]).to.equal(ERAdapterBob.getAddress());
+        const cidOnNetwork = await ERAdapterLocksmith.getCID()
+        expect(newCID2.toString()).to.equal(cidOnNetwork);
+
+        const payload = await ERAdapterCustomer.getTrustRelations(ERAdapterLocksmith.getAddress())
+        expect(payload.T0[0]).to.equal(ERAdapterCustomer.getAddress());
+
+        const reciept = await ERAdapterCustomer.requestDecryption(ERAdapterLocksmith.getAddress(), SecurityLevels.T1.toString())
+        expect(reciept.events[0].args.newState).to.equal(LifeCycleEnum.REQUESTED);
+        expect(reciept.events[0].args.customer).to.equal(ERAdapterCustomer.getAddress().toString());
+        expect(reciept.events[0].args.locksmith).to.equal(ERAdapterLocksmith.getAddress().toString());
+
+        const customersList =  await ERAdapterLocksmith.getCustomers();
+        expect(customersList[0]).to.equal(ERAdapterCustomer.getAddress());
 
     })
     it("Should do re-encryption with real accounts", async () => {
@@ -115,7 +125,7 @@ describe.only('re-encrypt', function () {
         const requestFromBobReciept = await requestFromBob.wait()
         expect(requestFromBobReciept.events[0].args.newState).to.equal(LifeCycleEnum.REQUESTED);
         expect(requestFromBobReciept.events[0].args.customer).to.equal(bob.address.toString());
-        expect(requestFromBobReciept.events[0].args.locksmtih).to.equal(alice.address.toString());
+        expect(requestFromBobReciept.events[0].args.locksmith).to.equal(alice.address.toString());
 
         /*
             Check lifecycle getter TODO(@ckartik): May want to remove this as redundant
@@ -134,7 +144,7 @@ describe.only('re-encrypt', function () {
         const reKeyPostedTxnReciept = await reKeyPostedTxn.wait();
         expect(reKeyPostedTxnReciept.events[0].args.newState).to.equal(LifeCycleEnum.RESPONDED);
         expect(reKeyPostedTxnReciept.events[0].args.customer).to.equal(bob.address.toString());
-        expect(reKeyPostedTxnReciept.events[0].args.locksmtih).to.equal(alice.address.toString());
+        expect(reKeyPostedTxnReciept.events[0].args.locksmith).to.equal(alice.address.toString());
         /*
             Bob takes the data Re-Encryption keys from the contract
         */
@@ -152,7 +162,7 @@ describe.only('re-encrypt', function () {
         const fundsClearedReciept = await fundsCleared.wait();
         expect(fundsClearedReciept.events[0].args.newState).to.equal(LifeCycleEnum.UNSET_OR_CLEARED);
         expect(fundsClearedReciept.events[0].args.customer).to.equal(bob.address.toString());
-        expect(fundsClearedReciept.events[0].args.locksmtih).to.equal(alice.address.toString());
+        expect(fundsClearedReciept.events[0].args.locksmith).to.equal(alice.address.toString());
 
 
         /*
