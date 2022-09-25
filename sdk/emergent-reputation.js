@@ -27,6 +27,7 @@ const SecurityLevels = {
   T2: 2,
   T3: 3,
 }
+const SecurityLevelsToTag = [Buffer.from("T0"), Buffer.from("T1"), Buffer.from("T2"), Buffer.from("T3")]
 
 class EmergentReputation {
   static async create(secretKey, contractAddress) {
@@ -37,7 +38,7 @@ class EmergentReputation {
     this.contract = contract
     this.wallet = new ethers.Wallet(secretKey, ethers.provider)
     this.privateKeyScalar = curve.scalarFromBuffer(Buffer.from(secretKey.substring(2), 'hex'))
-    this.pubKey = curve.basepoint.mul(this.privateKeyScalar);
+    this.pubKey = curve.basepoint.mul(this.privateKeyScalar).toBuffer();
     this.PRECore = new PRE(this.privateKeyScalar.toBuffer(), curve)
   }
   // Try storing data as follows:
@@ -104,6 +105,12 @@ class EmergentReputation {
     return await connectedContract.getCustomerList();
   }
 
+  async getPublicKey(customerAddress) {
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    return await connectedContract.getPublicKey(customerAddress)
+  }
+
   // addTrustRelation adds the [newTrustedAddress] to the adjacency list index by the ownwer node.
   // The securityLevel dictates the minimum level of security access needed to access the list from [T0, T1, T2, T3].
   // T3 being the most secured data, T0 being unencrypted.
@@ -111,6 +118,8 @@ class EmergentReputation {
   // We utilize a model similar to BLP (Bell–LaPadula model) model constrainted to a view only prespective for re-encrpytion keys.
   async addTrustRelation(newTrustedAddress, securityLevel = SecurityLevels.T0){
     // Retrive data from IPLD or initialize.
+    console.log("new trustedaddress")
+    console.log(newTrustedAddress)
     const connectedContract = await this.contract.connect(this.wallet)
     
     const cid = await connectedContract.getCID()
@@ -120,20 +129,20 @@ class EmergentReputation {
     if (cid != "") {
       payload = await EmergentReputation.read_data(cid);
     }
-
+    const data = Buffer.from(newTrustedAddress, 'utf-8')
     // Add new data to payload.
     switch (securityLevel) {
       case SecurityLevels.T0:
-        payload.T0.push(newTrustedAddress);
+        payload.T0.push(data);
         // Fall-through
       case SecurityLevels.T1:
-        payload.T1.push(await this.encrypt(newTrustedAddress, "T1"));
+        payload.T1.push(await this.encrypt(data, Buffer.from("T1")));
         // Fall-through
       case SecurityLevels.T2:
-        payload.T2.push(await this.encrypt(newTrustedAddress, "T2"));
+        payload.T2.push(await this.encrypt(data,  Buffer.from("T2")));
         // Fall-through
       case SecurityLevels.T3:
-        payload.T3.push(await this.encrypt(newTrustedAddress, "T3"));
+        payload.T3.push(await this.encrypt(data,  Buffer.from("T3")));
         break;
       default:
         throw "Security Level passed cannot be understood";
@@ -152,7 +161,7 @@ class EmergentReputation {
   async getTrustRelations(locksmithAddress) {
     const connectedContract = await this.contract.connect(this.wallet)
 
-    const cid =  await connectedContract.getCIDFor(locksmithAddress);
+    const cid = await connectedContract.getCIDFor(locksmithAddress);
     return await EmergentReputation.read_data(cid)
   }
 
@@ -161,7 +170,7 @@ class EmergentReputation {
   async requestDecryption(locksmithAddress, securityLevel) {
     const connectedContract = await this.contract.connect(this.wallet)
 
-    const tx = await connectedContract.makeRequestForTrustRelationsDecryption(locksmithAddress, this.pubKey.toBuffer(), ethers.BigNumber.from(securityLevel), {
+    const tx = await connectedContract.makeRequestForTrustRelationsDecryption(locksmithAddress, this.pubKey, ethers.BigNumber.from(securityLevel), {
       value: ethers.utils.parseUnits("1000000", "gwei")
     });
 
@@ -174,15 +183,30 @@ class EmergentReputation {
 
   }
   
-  async getPublicKey() {
-    return this.pubKey;
+  async approveRequest(customerAddress) {
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    const customersPubKey = await this.getPublicKey(customerAddress);
+    const customersPKFromContract = Buffer.from(customersPubKey.substring(2),'hex')
+    const customerREK = this.PRECore.generateReKey(customersPKFromContract, SecurityLevelsToTag[await connectedContract.getRequestedTier(customerAddress)]);
+    const tx = await connectedContract.postReKey(customerAddress, customerREK.R1, customerREK.R2, customerREK.R3);
+    return await tx.wait()
   }
 
-  async approveRequest(bobAddress) {
-    const bobsPubKey = await reputation.connect(this.wallet).getPublicKey(bobAddress);
-    const bobsPKFromContract = Buffer.from(bobsPubKey.substring(2),'hex')
-    const bobREK = alicePRE.generateReKey(bobsPKFromContract, tag);
-    await reputation.connect(alice).postReKey(bob.address, bobREK.R1, bobREK.R2, bobREK.R3);
+  async getDecryptedTrustRelation(locksmithAddress, Tier) {
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    const keyList = await connectedContract.getReKey(locksmithAddress)
+    const rekey = {
+      R1: Buffer.from(keyList.r1.substring(2), 'hex'), R2: Buffer.from(keyList.r2.substring(2), 'hex'), R3: Buffer.from(keyList.r3.substring(2), 'hex')
+    };
+    console.log(rekey);
+    const relations = await this.getTrustRelations(locksmithAddress)
+
+    // console.log(relations[Tier][0])
+    // reCipher = PRE.reEncrypt()
+    const transformedRelations = relations[Tier].map( x => PRE.reEncrypt(this.pubKey, x, rekey, curve))  
+    return await transformedRelations.map( async x => await this.PRECore.reDecrypt(x))
   }
 
 }

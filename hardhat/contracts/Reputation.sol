@@ -82,7 +82,7 @@ contract Reputation {
     function getCustomerList() public view returns (address[] memory) {
         return requestQueue[msg.sender];
     }
-
+    
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.

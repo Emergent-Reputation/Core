@@ -25,7 +25,7 @@ const deployNew = true
 var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
 
 describe.only('re-encrypt', function () {
-    it.only("Testing using npm module", async () => {
+    it("Testing using npm module", async () => {
         if (deployNew) {
             const Reputation = await ethers.getContractFactory("Reputation");
             const reputationDeployed = await Reputation.deploy();
@@ -50,14 +50,15 @@ describe.only('re-encrypt', function () {
         }
 
         const newCID = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
-        const newCID2 = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
+        
+        // TODO(@ckartik): Ensure we avoid adding trust relations multiple times.
+        // const newCID2 = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
 
         const cidOnNetwork = await ERAdapterLocksmith.getCID()
-        expect(newCID2.toString()).to.equal(cidOnNetwork);
+        expect(newCID.toString()).to.equal(cidOnNetwork);
 
         const payload = await ERAdapterCustomer.getTrustRelations(ERAdapterLocksmith.getAddress())
-        expect(payload.T0[0]).to.equal(ERAdapterCustomer.getAddress());
-
+        expect(Buffer.from(payload.T0[0], 'hex').toString()).to.equal(ERAdapterCustomer.getAddress());
         const reciept = await ERAdapterCustomer.requestDecryption(ERAdapterLocksmith.getAddress(), SecurityLevels.T1.toString())
         expect(reciept.events[0].args.newState).to.equal(LifeCycleEnum.REQUESTED);
         expect(reciept.events[0].args.customer).to.equal(ERAdapterCustomer.getAddress().toString());
@@ -65,7 +66,10 @@ describe.only('re-encrypt', function () {
 
         const customersList =  await ERAdapterLocksmith.getCustomers();
         expect(customersList[0]).to.equal(ERAdapterCustomer.getAddress());
+        const approvalReciept = await ERAdapterLocksmith.approveRequest(customersList[0]);
 
+        const plaintext = await ERAdapterCustomer.getDecryptedTrustRelation(ERAdapterLocksmith.getAddress(), "T1");
+        console.log((await plaintext[0]).toString())
     })
     it("Should do re-encryption with real accounts", async () => {
         // Constructs smart contract
@@ -114,8 +118,12 @@ describe.only('re-encrypt', function () {
         // Load concrete implementation of re-encryption utility.
         const alicePRE = new PRE(aliceKeyScalar.toBuffer(), curve);
         // Run Base Algo of encrypting 
-        const selfCipher = await alicePRE.selfEncrypt(data, tag);
-    
+        // const selfCipher = await alicePRE.selfEncrypt(data, tag);
+        console.log("bob trustedaddress")
+
+        console.log(bobWallet.address)
+        const selfCipher = await alicePRE.selfEncrypt(bobWallet.address, tag);
+
         /* 
             Bob connects to request the data from Alice and pays dues.
         */
@@ -137,6 +145,8 @@ describe.only('re-encrypt', function () {
             Alice recieves Bobs request and attempts to retrieve public key to create Re-encryption keys.
         */ 
         const bobsPubKey = await reputation.connect(alice).getPublicKey(bob.address);
+
+        
         const bobsPKFromContract = Buffer.from(bobsPubKey.substring(2),'hex')
         const bobREK = alicePRE.generateReKey(bobsPKFromContract, tag);
         const reKeyPostedTxn = await reputation.connect(alice).postReKey(bob.address, bobREK.R1, bobREK.R2, bobREK.R3);
@@ -152,7 +162,7 @@ describe.only('re-encrypt', function () {
         const rekey = {
             R1: Buffer.from(bytesList.r1.substring(2), 'hex'), R2: Buffer.from(bytesList.r2.substring(2), 'hex'), R3: Buffer.from(bytesList.r3.substring(2), 'hex')
         };
-      
+        console.log(rekey)
         const b1 = await alice.getBalance();
 
         /* 
@@ -181,10 +191,14 @@ describe.only('re-encrypt', function () {
             TODO(@ckartik): Convert this to be using IPFS style data source with a CID.
         */
         const reCipher = PRE.reEncrypt(bobsPKFromContract, selfCipher, rekey, curve);
+        console.log(bobsPKFromContract)
+        // console.log(selfCipher)
+        // console.log(rekey)
         const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
+
         const newPlaintext = await bobPRE.reDecrypt(reCipher);
     
-        expect(newPlaintext.toString()).to.equal(data.toString());
+        expect(newPlaintext.toString()).to.equal(bobWallet.address.toString());
         
     })
 })
