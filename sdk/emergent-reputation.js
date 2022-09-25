@@ -198,9 +198,15 @@ class EmergentReputation {
     };
 
     const relations = await this.getTrustRelations(locksmithAddress)
+    const transformedRelations = relations[Tier].map( x => PRE.reEncrypt(this.pubKey, x, rekey, curve)) 
+    
+    var trustList = []
+    for (let i = 0; i < transformedRelations.length; i++) {
+      const val = await this.PRECore.reDecrypt(transformedRelations[i]);
+      trustList.push(val.toString())
+    }
 
-    const transformedRelations = relations[Tier].map( x => PRE.reEncrypt(this.pubKey, x, rekey, curve))  
-    return await transformedRelations.map( async x => (await this.PRECore.reDecrypt(x)).toString())
+    return trustList
   }
 
 }
