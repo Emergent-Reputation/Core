@@ -38,13 +38,13 @@ contract Reputation {
     event transactionLifeCycleChanged (
         PaymentLifeCycle newState,
         address indexed customer,
-        address indexed locksmtih
+        address indexed locksmith
     );
 
     event tierRequested (
         DataPrivacyTier tier,
         address indexed customer,
-        address indexed locksmtih
+        address indexed locksmith
     );
 
     // REKs are a set of Re-encryption keys posted to respond to a payment request for the users trust list.
@@ -79,6 +79,10 @@ contract Reputation {
         return publicKeys[targetAddress];
     }
 
+    function getCustomerList() public view returns (address[] memory) {
+        return requestQueue[msg.sender];
+    }
+    
     /* 
         TODO(@ckartik): Vunreability.
         Need to somehow block an attack where users overload the list with requests.
