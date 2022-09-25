@@ -10,7 +10,7 @@ const { Provider } = require('@ethersproject/abstract-provider');
 const {EmergentReputation, SecurityLevels} = require("../../sdk/emergent-reputation");
 
 
-const tag = Buffer.from('TAG');
+const tag = Buffer.from('T1');
 const data = Buffer.from('This is uber secret', 'utf-8');
 
 
