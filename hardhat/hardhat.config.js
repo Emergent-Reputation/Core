@@ -7,6 +7,8 @@ const { task } = require("hardhat/config");
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config();
 
+require('solidity-coverage')
+
 module.exports = {
   solidity: "0.8.4",
   defaultNetwork: "ropsten",

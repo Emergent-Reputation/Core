@@ -26,6 +26,7 @@ var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
 
 describe.only('re-encrypt', function () {
     it("Testing using npm module", async () => {
+        const accounts = (await ethers.getSigners()).map(x=>x.address)
         if (deployNew) {
             const Reputation = await ethers.getContractFactory("Reputation");
             const reputationDeployed = await Reputation.deploy();
@@ -52,10 +53,12 @@ describe.only('re-encrypt', function () {
         const newCID = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
         
         // TODO(@ckartik): Ensure we avoid adding trust relations multiple times.
-        // const newCID2 = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
-
+        var newCID2 = await ERAdapterLocksmith.addTrustRelation(await ERAdapterCustomer.getAddress(), SecurityLevels.T0)
+        for (let i = 0; i< accounts.length; i++) {
+            newCID2 = await ERAdapterLocksmith.addTrustRelation(accounts[i], SecurityLevels.T0)
+        }
         const cidOnNetwork = await ERAdapterLocksmith.getCID()
-        expect(newCID.toString()).to.equal(cidOnNetwork);
+        expect(newCID2.toString()).to.equal(cidOnNetwork);
 
         const payload = await ERAdapterCustomer.getTrustRelations(ERAdapterLocksmith.getAddress())
         expect(Buffer.from(payload.T0[0], 'hex').toString()).to.equal(ERAdapterCustomer.getAddress());
@@ -71,6 +74,10 @@ describe.only('re-encrypt', function () {
         const plaintext = await ERAdapterCustomer.getDecryptedTrustRelation(ERAdapterLocksmith.getAddress(), "T1");
 
         expect(await plaintext[0]).to.equal(ERAdapterCustomer.getAddress())
+        for (let i = 2; i < accounts.length + 2; i++) {
+            expect(await plaintext[i]).to.equal(accounts[i-2])
+        }
+
     })
     it("Should do re-encryption with real accounts", async () => {
         // Constructs smart contract
