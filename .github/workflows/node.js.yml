@@ -24,6 +24,7 @@ jobs:
       API_KEY: "6c2262857eb848b6a1fad45a8a3f6686"
       PRIV_KEY1: "0e10373c761cbe50eafe9798cb8df4ed9edeb13c1396684daa0f8eefd6022abc"
       PRIV_KEY2: "29de3ab5d11acd8cf5fc3af89691e293cd0726b1f2e93a62e96560ec5eab0181"
+      LOCAL_RUN: True
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
