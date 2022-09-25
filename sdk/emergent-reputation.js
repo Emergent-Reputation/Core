@@ -118,14 +118,10 @@ class EmergentReputation {
   // We utilize a model similar to BLP (Bell–LaPadula model) model constrainted to a view only prespective for re-encrpytion keys.
   async addTrustRelation(newTrustedAddress, securityLevel = SecurityLevels.T0){
     // Retrive data from IPLD or initialize.
-    console.log("new trustedaddress")
-    console.log(newTrustedAddress)
     const connectedContract = await this.contract.connect(this.wallet)
     
     const cid = await connectedContract.getCID()
     var payload = {T0: [], T1: [], T2: [], T3: []};
-    // const cid = await this.contract.connect(this.Wallet).getCID()
-    console.log("Got CID %s", cid)
     if (cid != "") {
       payload = await EmergentReputation.read_data(cid);
     }
@@ -200,13 +196,11 @@ class EmergentReputation {
     const rekey = {
       R1: Buffer.from(keyList.r1.substring(2), 'hex'), R2: Buffer.from(keyList.r2.substring(2), 'hex'), R3: Buffer.from(keyList.r3.substring(2), 'hex')
     };
-    console.log(rekey);
+
     const relations = await this.getTrustRelations(locksmithAddress)
 
-    // console.log(relations[Tier][0])
-    // reCipher = PRE.reEncrypt()
     const transformedRelations = relations[Tier].map( x => PRE.reEncrypt(this.pubKey, x, rekey, curve))  
-    return await transformedRelations.map( async x => await this.PRECore.reDecrypt(x))
+    return await transformedRelations.map( async x => (await this.PRECore.reDecrypt(x)).toString())
   }
 
 }

@@ -19,7 +19,7 @@ const LifeCycleEnum = {
     REQUESTED: 1,
     RESPONDED: 2
 }
-const localRun = true
+const localRun = false
 const deployNew = true
 
 var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
@@ -69,7 +69,8 @@ describe.only('re-encrypt', function () {
         const approvalReciept = await ERAdapterLocksmith.approveRequest(customersList[0]);
 
         const plaintext = await ERAdapterCustomer.getDecryptedTrustRelation(ERAdapterLocksmith.getAddress(), "T1");
-        console.log((await plaintext[0]).toString())
+
+        expect(await plaintext[0]).to.equal(ERAdapterCustomer.getAddress())
     })
     it("Should do re-encryption with real accounts", async () => {
         // Constructs smart contract
@@ -119,9 +120,7 @@ describe.only('re-encrypt', function () {
         const alicePRE = new PRE(aliceKeyScalar.toBuffer(), curve);
         // Run Base Algo of encrypting 
         // const selfCipher = await alicePRE.selfEncrypt(data, tag);
-        console.log("bob trustedaddress")
 
-        console.log(bobWallet.address)
         const selfCipher = await alicePRE.selfEncrypt(bobWallet.address, tag);
 
         /* 
@@ -162,7 +161,7 @@ describe.only('re-encrypt', function () {
         const rekey = {
             R1: Buffer.from(bytesList.r1.substring(2), 'hex'), R2: Buffer.from(bytesList.r2.substring(2), 'hex'), R3: Buffer.from(bytesList.r3.substring(2), 'hex')
         };
-        console.log(rekey)
+
         const b1 = await alice.getBalance();
 
         /* 
@@ -191,9 +190,7 @@ describe.only('re-encrypt', function () {
             TODO(@ckartik): Convert this to be using IPFS style data source with a CID.
         */
         const reCipher = PRE.reEncrypt(bobsPKFromContract, selfCipher, rekey, curve);
-        console.log(bobsPKFromContract)
-        // console.log(selfCipher)
-        // console.log(rekey)
+
         const bobPRE = new PRE(bobKeyScalar.toBuffer(), curve);
 
         const newPlaintext = await bobPRE.reDecrypt(reCipher);
