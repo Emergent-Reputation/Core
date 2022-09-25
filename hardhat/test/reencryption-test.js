@@ -19,7 +19,7 @@ const LifeCycleEnum = {
     REQUESTED: 1,
     RESPONDED: 2
 }
-const localRun = process.env.LOCAL_RUN
+const localRun = false
 const deployNew = true
 
 var contractAddress = "0x37de4E8469d00fED7b2006dfDAEbDDC0f205DBc6"
