@@ -156,7 +156,7 @@ class EmergentReputation {
   // The data is retrieved as is from IPLD and returned.
   async getTrustRelations(locksmithAddress) {
     const connectedContract = await this.contract.connect(this.wallet)
-
+    
     const cid = await connectedContract.getCIDFor(locksmithAddress);
     return await EmergentReputation.read_data(cid)
   }
@@ -207,6 +207,14 @@ class EmergentReputation {
     }
 
     return trustList
+  }
+
+  async clearFunds(customerAddress){
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    const tx = await connectedContract.clearFunds(customerAddress);
+
+    return await tx.wait()
   }
 
 }

@@ -1,14 +1,14 @@
-const Web3 = require("web3")
-const web3 = new Web3()
-
-
 const express = require('express')
 const app = express()
 
 
 const  {EmergentReputation, SecurityLevels} = require('../../../sdk/emergent-reputation');
+
+// NOTE: This contract address needs to contains CIDs that exist in an accessible IPFS/IPLD datastore.
+const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+
+
 app.use(express.json())
-const contractAddress = "0xEa4Df49aEe4bB81EcDE7dB26dD638F2B6DfCC961"
 
 app.get('/address', async (req,res) => {
   const ERLocksmith = await EmergentReputation.create(req.body.key, contractAddress)
@@ -56,5 +56,11 @@ app.post('/get-decrypted-relations', async (req, res) => {
   res.send(list)
 })
 
+app.post('/clear-funds', async (req, res) => {
+  const ERLocksmith = await EmergentReputation.create(req.body.key, contractAddress)
+  const reciept = await ERLocksmith.clearFunds(req.body.customer);
+
+  res.send(reciept);
+})
 
 app.listen(8080)
