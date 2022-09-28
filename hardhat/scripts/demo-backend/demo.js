@@ -98,4 +98,15 @@ app.post('/clear-funds', async (req, res) => {
   }
 })
 
+app.get('/cid', async (req, res) => {
+  try {
+    console.log(req.query.cid)
+    const payload = await EmergentReputation.read_data(req.query.cid)
+
+    res.send({payload:payload})
+  } catch {
+    res.status(500).json({message: "Unable to load data"})
+  }
+})
+
 app.listen(8080)
