@@ -3,10 +3,17 @@ import './App.css';
 import React, { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import ListGroup from 'react-bootstrap/ListGroup'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import _ from 'lodash';
+
+
+import JsonFormatter from 'react-json-formatter'
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+
 
 const baseURL = 'https://ckartik.ngrok.io';
 
@@ -65,10 +72,12 @@ class DemoApp extends React.Component {
 }
 
 
-async function get(resource, key, queryName='key') {
-  const url = `${baseURL}/${resource}?${queryName}=${key}`
-  return fetch(url).then(
+async function get(resource, key) {
+  const url = `${baseURL}/${resource}?key=${key}`
+  const data = await fetch(url).then(
     res => res.json()).then( res => res[resource])
+  console.log(data)
+  return data
 }
 
 async function post(resource, body) {
@@ -106,19 +115,19 @@ function DemoCard(props) {
     <Card bg="light" border="dark" text="dark" style={{ width: '90vw', margin: '5vw' }}>
       <Card.Body>
       <Card.Title>Address: {address}</Card.Title>
-      <Row>
+      <Row style={{border:'1px', borderStyle:'solid', margin:'2vw', padding:'1vw'}}>
         CID: {CID}
        </Row>
-      <Row>
-        <Col>      
+      <Row style={{border:'1px', borderStyle:'solid', margin:'2vw', padding:'1vw'}}>
+        <Col  style={{margin:'2vw'}}>      
           <input value={trustedAddress} onChange={(e)=> setTrustedAddress(e.target.value)}></input>
         </Col>
-        <Col>
+        <Col  style={{margin:'2vw'}}>
           <Dropdown onSelect={(e) => {
             setSecurityLevel(e)
           }
             }>
-            <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+            <Dropdown.Toggle variant="dark" id="dropdown-basic">
               {security}
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -133,11 +142,27 @@ function DemoCard(props) {
         <Button variant="primary" onClick={() => updateCID()}>Add Trust Relation</Button>
         </Col>
       </Row>
-      
+          <DecryptionRequest/>
+      <Row style={{border:'2px', borderStyle:'dotted', margin:'2vw'}}>
+        <Customers privKey={props.privKey}/>
+      </Row>
       </Card.Body>
     </Card>
     </>
    
+  )
+}
+
+function DecryptionRequest() {
+  return(
+    <Row style={{border:'2px', borderStyle:'dotted', margin:'2vw'}}>
+      <Col>
+        <input style={{margin:'2vw'}}/>
+      </Col>
+      <Col>
+        <Button style={{margin:'2vw'}} variant="primary" size='sm'>Request Decryption</Button>
+      </Col>
+    </Row>
   )
 }
 
@@ -146,25 +171,73 @@ class AdapterModule extends React.Component {
     return (
       <div>
         {this.props.items.map(item => (
-          <DemoCard privKey={item.text}/>
+          <DemoCard style={{padding: '2vw'}} key={item.text}  privKey={item.text}/>
         ))}
       </div>
     );
   }
 }
 
+
+function Customers(props) {
+  const [customerList, setCustomerList] = useState([])
+  const [selected, setSelected] = useState("Choose a Customer")
+
+  const fetchCustomerList = async() => {
+    const customers = await get('customers', props.privKey)
+    var list = customers.map(x=> {
+      const entry = new Object();
+      entry.address = x[0]
+      entry.tier = x[1]
+      return entry    
+    })
+    console.log(list)
+    setCustomerList(_.uniqBy(list, 'address'))
+  }
+  const approve = async() => {
+
+  }
+
+  return(
+    <div style={{margin:'2vw'}}>
+      <Row>
+      <Col>
+      <Button variant='outline-secondary' onClick={()=>fetchCustomerList()} >Refresh List</Button>
+      </Col>
+      <Col>
+        <Dropdown onSelect={(e) => setSelected(e)}>
+        <Dropdown.Toggle variant="dark" id="dropdown-basic-2">
+                  {selected}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {customerList.map( c => (
+                <Dropdown.Item key={c.address} eventKey={[c.address, c.tier]}>Address: {c.address} Tier: {c.tier}</Dropdown.Item>
+              ))}
+          </Dropdown.Menu>
+      </Dropdown>
+      </Col>
+     <Col>
+     <Button onClick={()=>{}}>Approve</Button>
+     </Col>
+
+     </Row>
+    </div>
+  )
+
+}
+
 function CIDSearch() {
   const [CID, setCID] = useState("")
-  const [payload, setPayload] = useState(" ")
+  const [payload, setPayload] = useState(`{empty:0}`)
   const updatePayload = async() => {
     const url = `${baseURL}/cid?cid=${CID}`
     const value = await fetch(url).then(res => res.json())
-    // console.log(value)
+    console.log(value)
     setPayload(value.payload)
   }
 
   return(
-    <Card style ={{margin:'1vw'}}>
+    <Card style ={{marginLeft:'20vw', width:'60vw'}}>
     <Card.Title>Search CID Value</Card.Title>
     <Card.Body>
       <Row>
@@ -173,7 +246,12 @@ function CIDSearch() {
       </Row>
       <Row>
         <Card.Text>
-        {payload}
+          <ListGroup>
+            <ListGroup.Item>T0: {JSON.stringify(payload.T0)}</ListGroup.Item>
+            <ListGroup.Item>T1: {JSON.stringify(payload.T1)}</ListGroup.Item>
+            <ListGroup.Item>T2: {JSON.stringify(payload.T2)}</ListGroup.Item>
+            <ListGroup.Item>T3: {JSON.stringify(payload.T3)}</ListGroup.Item>
+          </ListGroup>
         </Card.Text>
       </Row>
     </Card.Body>

@@ -2,12 +2,13 @@ const express = require('express')
 var cors = require('cors');
 
 const app = express()
+const { encode, decode } =  require('@ipld/dag-cbor')
 
 
 const  {EmergentReputation, SecurityLevels} = require('../../../sdk/emergent-reputation');
 
 // NOTE: This contract address needs to contains CIDs that exist in an accessible IPFS/IPLD
-const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 app.use(cors())
 app.use(express.json())
@@ -37,16 +38,19 @@ app.post('/relation', async (req, res) => {
   const ERLocksmith = await EmergentReputation.create(req.body.key, contractAddress)
   const cid = await ERLocksmith.addTrustRelation(req.body.value, req.body.tier)
   res.send({cid: cid.toString()})
-} catch {
+} catch (e) {
+  console.log(e)
   res.status(500).json({message: "Unable to process"})
 }
 })
 
 app.get('/customers', async (req, res) => {
   try {
-  const ERLocksmith = await EmergentReputation.create(req.body.key, contractAddress)
+    console.log("called")
+    console.log(req.query.key)
+  const ERLocksmith = await EmergentReputation.create(req.query.key, contractAddress)
   const list = await ERLocksmith.getCustomers();
-
+  console.log(list)
   res.send({customers:list})
 } catch {
   res.status(500).json({message: "Unable to process"})
@@ -102,9 +106,16 @@ app.get('/cid', async (req, res) => {
   try {
     console.log(req.query.cid)
     const payload = await EmergentReputation.read_data(req.query.cid)
-
-    res.send({payload:payload})
-  } catch {
+    console.log(payload.T3)
+    res.send({payload: {
+        T0: payload.T0.map(x=> String.fromCharCode.apply(null, x)),
+        T1: payload.T1.toString(),
+        T2: payload.T2.toString(),
+        T3: payload.T3.toString()
+      }
+    })
+  } catch (e) {
+    console.log(e)
     res.status(500).json({message: "Unable to load data"})
   }
 })
