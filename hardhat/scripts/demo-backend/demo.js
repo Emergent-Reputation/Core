@@ -8,7 +8,7 @@ const { encode, decode } =  require('@ipld/dag-cbor')
 const  {EmergentReputation, SecurityLevels} = require('../../../sdk/emergent-reputation');
 
 // NOTE: This contract address needs to contains CIDs that exist in an accessible IPFS/IPLD
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+const contractAddress = "0x59b670e9fA9D0A427751Af201D676719a970857b"
 
 app.use(cors())
 app.use(express.json())
@@ -18,7 +18,8 @@ app.get('/address', async (req,res) => {
   try {
     const ERLocksmith = await EmergentReputation.create(req.query.key, contractAddress)
     res.json({ address: ERLocksmith.getAddress()})
-  } catch {
+  } catch (e) {
+    console.log(e)
     res.status(500).json({message: "Unable to process"})
   }
 })
@@ -27,7 +28,8 @@ app.get('/relation', async (req, res) => {
   try {
     const ERLocksmith = await EmergentReputation.create(req.body.key, contractAddress)
     res.send( { relation: await ERLocksmith.getTrustRelations(ERLocksmith.getAddress())})
-  } catch {
+  } catch (e){
+    console.log(e)
     res.status(500).json({message: "Unable to process"})
   }
   
@@ -52,7 +54,8 @@ app.get('/customers', async (req, res) => {
   const list = await ERLocksmith.getCustomers();
   console.log(list)
   res.send({customers:list})
-} catch {
+} catch (e) {
+  console.log(e)
   res.status(500).json({message: "Unable to process"})
 }
 })
@@ -63,18 +66,21 @@ app.post('/request-decrypt', async (req, res) => {
   const tx = await ERCustomer.requestDecryption(req.body.locksmith, req.body.tier);
 
   res.send({tx:tx})
-} catch {
+} catch(e){
+  console.log(e)
   res.status(500).json({message: "Unable to process"})
 }
 })
 
 app.post('/approve-request', async (req, res) => {
   try {
+    console.log(req.body.customer)
   const ERLocksmith = await EmergentReputation.create(req.body.key, contractAddress)
   const tx = await ERLocksmith.approveRequest(req.body.customer);
 
   res.send({tx:tx})
-} catch {
+} catch (e){
+  console.log(e)
   res.status(500).json({message: "Unable to process"})
 }
 })
@@ -86,7 +92,8 @@ app.post('/get-decrypted-relations', async (req, res) => {
   const list = await ERCustomer.getDecryptedTrustRelation(req.body.locksmith, req.body.tier);
 
   res.send({list:list})
-} catch {
+} catch (e) {
+  console.log(e)
   res.status(500).json({message: "Unable to process"})
 }
 })
@@ -97,7 +104,8 @@ app.post('/clear-funds', async (req, res) => {
   const reciept = await ERLocksmith.clearFunds(req.body.customer);
 
   res.send({reciept:reciept});
-  } catch {
+  } catch (e) {
+    console.log(e)
     res.status(500).json({message: "Unable to process"})
   }
 })

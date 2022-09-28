@@ -142,9 +142,15 @@ function DemoCard(props) {
         <Button variant="primary" onClick={() => updateCID()}>Add Trust Relation</Button>
         </Col>
       </Row>
-          <DecryptionRequest/>
+          <DecryptionRequest privKey={props.privKey}/>
       <Row style={{border:'2px', borderStyle:'dotted', margin:'2vw'}}>
         <Customers privKey={props.privKey}/>
+      </Row>
+      <Row>
+        <GetData privKey={props.privKey} />
+      </Row>
+      <Row>
+        <ClearFunds privKey={props.privKey}/>
       </Row>
       </Card.Body>
     </Card>
@@ -153,14 +159,37 @@ function DemoCard(props) {
   )
 }
 
-function DecryptionRequest() {
+function DecryptionRequest(props) {
+  const [requestedAddress, setRequestedAddress] = useState("")
+  const [security, setSecurityLevel] = useState(0)
+  const sendDecryptRequest = async () => {
+    await post('request-decrypt', {key: props.privKey, locksmith: requestedAddress, tier:security})
+    setRequestedAddress("")
+  }
+
   return(
     <Row style={{border:'2px', borderStyle:'dotted', margin:'2vw'}}>
       <Col>
-        <input style={{margin:'2vw'}}/>
+        <input value={requestedAddress} onChange={(e)=> setRequestedAddress(e.target.value)} style={{margin:'2vw'}}/>
       </Col>
       <Col>
-        <Button style={{margin:'2vw'}} variant="primary" size='sm'>Request Decryption</Button>
+      <Dropdown onSelect={(e) => {
+            setSecurityLevel(e)
+          }
+            }>
+            <Dropdown.Toggle variant="dark" id="dropdown-basic">
+              {security}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item eventKey="0">T0 - Unencrypted</Dropdown.Item>
+              <Dropdown.Item eventKey="1">T1 - Encrypted</Dropdown.Item>
+              <Dropdown.Item eventKey="2">T2 - Encrypted</Dropdown.Item>
+              <Dropdown.Item eventKey="3">T3 - Encrypted</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+      </Col>
+      <Col>
+        <Button style={{margin:'2vw'}} variant="primary" size='sm' onClick={()=>sendDecryptRequest()}>Request Decryption</Button>
       </Col>
     </Row>
   )
@@ -178,10 +207,55 @@ class AdapterModule extends React.Component {
   }
 }
 
+function GetData(props) {
+  const [locksmith, setLocksmith] = useState('')
+  const [security, setSecurityLevel] = useState("T0")
+  const [data, setData] = useState(null)
+  const requestData = async() => {
+    const data = await post('get-decrypted-relations', {key:props.privKey, locksmith: locksmith, tier: security})
+    console.log(data)
+    setData(data)
+  }
+  return (
+    <div>
+    <Row style={{border:'2px', borderStyle:'dotted', margin:'2vw'}}>
+      <Col>
+        <input value={locksmith} onChange={(e)=> setLocksmith(e.target.value)} style={{margin:'2vw'}}/>
+      </Col>
+      <Col>
+      <Dropdown onSelect={(e) => {
+            setSecurityLevel(e)
+          }
+            }>
+            <Dropdown.Toggle variant="dark" id="dropdown-basic">
+              {security}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item eventKey="T0">T0 - Unencrypted</Dropdown.Item>
+              <Dropdown.Item eventKey="T1">T1 - Encrypted</Dropdown.Item>
+              <Dropdown.Item eventKey="T2">T2 - Encrypted</Dropdown.Item>
+              <Dropdown.Item eventKey="T3">T3 - Encrypted</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+      </Col>
+      <Col>
+        <Button style={{margin:'2vw'}} variant="primary" size='sm' onClick={()=>requestData()}>Get Data</Button>
+      </Col>
+    </Row>
+    <Row>
+      {data !== null && 
+      <Card.Text>
+        {JSON.stringify(data)}
+      </Card.Text>
+      }
+    </Row>
+    </div>
+  )
+}
 
 function Customers(props) {
   const [customerList, setCustomerList] = useState([])
-  const [selected, setSelected] = useState("Choose a Customer")
+  const [selected, setSelected] = useState(["Choose a Customer"])
 
   const fetchCustomerList = async() => {
     const customers = await get('customers', props.privKey)
@@ -195,7 +269,9 @@ function Customers(props) {
     setCustomerList(_.uniqBy(list, 'address'))
   }
   const approve = async() => {
+    await post('approve-request', {key: props.privKey, customer: selected.split(',')[0]})
 
+    setSelected("Choose a Customer")
   }
 
   return(
@@ -217,7 +293,7 @@ function Customers(props) {
       </Dropdown>
       </Col>
      <Col>
-     <Button onClick={()=>{}}>Approve</Button>
+     <Button onClick={()=>{approve()}}>Approve</Button>
      </Col>
 
      </Row>
@@ -225,6 +301,57 @@ function Customers(props) {
   )
 
 }
+
+
+function ClearFunds(props) {
+  const [customerList, setCustomerList] = useState([])
+  const [selected, setSelected] = useState(["Choose a Customer"])
+
+  const fetchCustomerList = async() => {
+    const customers = await get('customers', props.privKey)
+    var list = customers.map(x=> {
+      const entry = new Object();
+      entry.address = x[0]
+      entry.tier = x[1]
+      return entry    
+    })
+    console.log(list)
+    setCustomerList(_.uniqBy(list, 'address'))
+  }
+  const clear = async() => {
+    await post('clear-funds', {key: props.privKey, customer: selected.split(',')[0]})
+
+    setSelected("Choose a Customer")
+  }
+
+  return(
+    <div style={{margin:'2vw'}}>
+      <Row>
+      <Col>
+      <Button variant='outline-secondary' onClick={()=>fetchCustomerList()} >Refresh List</Button>
+      </Col>
+      <Col>
+        <Dropdown onSelect={(e) => setSelected(e)}>
+        <Dropdown.Toggle variant="dark" id="dropdown-basic-2">
+                  {selected}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {customerList.map( c => (
+                <Dropdown.Item key={c.address} eventKey={[c.address, c.tier]}>Address: {c.address} Tier: {c.tier}</Dropdown.Item>
+              ))}
+          </Dropdown.Menu>
+      </Dropdown>
+      </Col>
+     <Col>
+     <Button onClick={()=>{clear()}}>Clear Funds</Button>
+     </Col>
+
+     </Row>
+    </div>
+  )
+
+}
+
 
 function CIDSearch() {
   const [CID, setCID] = useState("")
@@ -237,7 +364,7 @@ function CIDSearch() {
   }
 
   return(
-    <Card style ={{marginLeft:'20vw', width:'60vw'}}>
+    <Card style ={{marginLeft:'20vw', width:'60vw', marginTop:'2vh'}}>
     <Card.Title>Search CID Value</Card.Title>
     <Card.Body>
       <Row>
