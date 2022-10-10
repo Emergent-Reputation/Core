@@ -101,8 +101,14 @@ class EmergentReputation {
 
   async getCustomers() {
     const connectedContract = await this.contract.connect(this.wallet)
-
-    return await connectedContract.getCustomerList();
+    const list = await connectedContract.getCustomerList();
+    var newList = []
+    for (var i = 0; i < list.length; i++) {
+      const tier =  await connectedContract.getRequestedTier(list[i]);
+      newList.push([list[i], tier]);
+    }
+    
+    return newList;
   }
 
   async getPublicKey(customerAddress) {
@@ -156,7 +162,7 @@ class EmergentReputation {
   // The data is retrieved as is from IPLD and returned.
   async getTrustRelations(locksmithAddress) {
     const connectedContract = await this.contract.connect(this.wallet)
-
+    
     const cid = await connectedContract.getCIDFor(locksmithAddress);
     return await EmergentReputation.read_data(cid)
   }
@@ -207,6 +213,14 @@ class EmergentReputation {
     }
 
     return trustList
+  }
+
+  async clearFunds(customerAddress){
+    const connectedContract = await this.contract.connect(this.wallet)
+
+    const tx = await connectedContract.clearFunds(customerAddress);
+
+    return await tx.wait()
   }
 
 }
