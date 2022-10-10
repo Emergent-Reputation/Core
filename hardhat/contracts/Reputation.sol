@@ -90,6 +90,7 @@ contract Reputation {
     function makeRequestForTrustRelationsDecryption(address locksmith, bytes memory publicKey, DataPrivacyTier tier) payable public {
         // Require user at this stage to not be in requested/responded state.
         require(requestForREKStage[locksmith][msg.sender] == PaymentLifeCycle.UNSET_OR_CLEARED, "ALREADY_REQUESTED");
+        // TODO(@ckartik): Keep thinking about it
         require(msg.value >= 10**11, "INSUFICENT_PAYMENT");
         requestQueue[locksmith].push(msg.sender);
         publicKeys[msg.sender] = publicKey;
