@@ -15,7 +15,7 @@ import JsonFormatter from 'react-json-formatter'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 
 
-const baseURL = 'https://ckartik.ngrok.io';
+const baseURL = 'http://localhost:8080';
 
 class DemoApp extends React.Component {
   constructor(props) {
