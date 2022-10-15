@@ -10,6 +10,11 @@
 ## Deploying new contract:
  - run `$ npx hardhat deploy`
  - Copy the address value into the contract address field in the tests
+ - To run locally use: `npx hardhat deploy --network localhost`
+
+# Local deployment
+- Start a local node using `npx hardhat node`
+- Run the server in the hardhat envrionment using `npx hardhat run scripts/demo-backend/demo.js --network localhost`
 
 ## New Prespective
 1. Get rid of signature lists for out-signatures
